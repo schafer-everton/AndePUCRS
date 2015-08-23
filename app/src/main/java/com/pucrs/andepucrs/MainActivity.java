@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,18 +16,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final String PREFS_NAME = "MyPrefsFile";
-
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
         if (settings.getBoolean("my_first_time", true)) {
             //the app is being launched for first time, do something
             // record the fact that the app has been started at least once
             settings.edit().putBoolean("my_first_time", false).commit();
-
+            Toast.makeText(getApplicationContext(), "FIST LOAD", Toast.LENGTH_LONG).show();
             Intent i = new Intent(MainActivity.this, SingUpActivity.class);
             startActivity(i);
         }else{
-            Intent i = new Intent(MainActivity.this, SearchActivity.class);
+            Toast.makeText(getApplicationContext(), "SECOND LOAD", Toast.LENGTH_LONG).show();
+            Intent i = new Intent(MainActivity.this, SingUpActivity.class);
             startActivity(i);
         }
     }
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

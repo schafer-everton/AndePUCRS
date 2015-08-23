@@ -1,16 +1,30 @@
 package com.pucrs.andepucrs;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 public class SearchActivity extends AppCompatActivity {
+
+    private Button searchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        searchButton = (Button) findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(),
+                        "SEARCH", Toast.LENGTH_LONG).show();
+
+            }
+        });
     }
 
     @Override
