@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "FIST LOAD", Toast.LENGTH_LONG).show();
             Intent i = new Intent(MainActivity.this, SingUpActivity.class);
             startActivity(i);
-        }else{
+        } else {
             Toast.makeText(getApplicationContext(), "SECOND LOAD", Toast.LENGTH_LONG).show();
             Intent i = new Intent(MainActivity.this, SingUpActivity.class);
             startActivity(i);
