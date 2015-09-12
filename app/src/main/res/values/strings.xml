@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">AndePUCRS</string>
+    <string name="action_settings">Opções</string>
+    <string name="name_textview">Nome</string>
+    <string name="email_textview">Email</string>
+    <string name="password_textview">Senha</string>
+    <string name="passwordverify_textview">Cofrimar Senha</string>
+    <string name="signIn_button">Sign In</string>
+    <string name="title_activity_profile_setup">Perfil do Usuário</string>
+    <string name="title_activity_list_view_checkboxes">Profile</string>
+    <string name="user_profile">Perfil do Usuário</string>
+    <string name="save">Salvar</string>
+    <string name="title_activity_main">Home</string>
+    <string name="title_activity_search">Pesquisar</string>
+    <string name="search">Pesquise</string>
+    <string name="drawer_open">Slider Menu Opened</string>
+    <string name="drawer_close">Slider Menu Closed</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="login">Login</string>
+    <string name="preferencias_selecionadas">As seguintes preferências foram selecionadas</string>
+    <string name="dados_cadastro">Informe os dados de cadastro corretamente</string>
+    <string name="title_activity_maps">Mapa</string>
+    <string name="marker">Marker</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_critical_point">Obstáculos</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="selecione_obstaculo">Selecione o obstáculo</string>
+    <string name="send">Enviar</string>
+
+
+</resources>
+
