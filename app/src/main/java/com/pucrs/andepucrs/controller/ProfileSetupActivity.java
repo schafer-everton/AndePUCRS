@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,9 +25,10 @@ import com.pucrs.andepucrs.AndePUCRSApplication;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
-import com.pucrs.andepucrs.model.Preference;
+import com.pucrs.andepucrs.model.Preferencias;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -39,6 +41,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
     SharedPreferences settings;
     MyCustomAdapter dataAdapter = null;
     private AndePUCRSApplication app;
+    ProgressBar pbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,30 +49,61 @@ public class ProfileSetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_setup);
         final Button myButton = (Button) findViewById(R.id.findSelected);
         settings = getSharedPreferences(Constants.getMyPreferenceFile(), 0);
+        pbar = (ProgressBar) findViewById(R.id.prefProgressBar);
+        pbar.setVisibility(View.VISIBLE);
 
+        myButton.setEnabled(false);
         app = (AndePUCRSApplication) getApplication();
         AndePUCRSAPI api = app.getService();
-        api.findAllPreferences(new Callback<ArrayList<Preference>>() {
+        api.findAllPreferences(new Callback<ArrayList<Preferencias>>() {
             @Override
-            public void success(ArrayList<Preference> preferenciases, Response response) {
+            public void success(ArrayList<Preferencias> preferenciases, Response response) {
                 displayListView(preferenciases);
                 checkButtonClick();
+                pbar.setVisibility(View.INVISIBLE);
+                myButton.setEnabled(true);
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Toast.makeText(ProfileSetupActivity.this, "Falha ao buscar preferencias, Por favor verifique a sua conexão", Toast.LENGTH_LONG).show();
-                Log.e("Retrofit", error.toString());
-                myButton.setEnabled(false);
+                Log.e(Constants.getAppName(), "Falha ao buscar pref do server");
+                Gson gson = new Gson();
+                String offlineData = settings.getString(Constants.getUserDataPreference(), "");
+                Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
+                ArrayList<Preferencias> list = new ArrayList<Preferencias>(Arrays.asList(p));
+                displayListView(list);
+                checkButtonClick();
+                pbar.setVisibility(View.INVISIBLE);
+                myButton.setEnabled(true);
             }
         });
 
 
     }
 
-    private void displayListView(ArrayList<Preference> preferenceList) {
+    private boolean isSelected(int id){
+        Gson gson = new Gson();
+        String offlineData = settings.getString(Constants.getUserDataPreference(), "");
+        Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
+        if(p != null){
+            ArrayList<Preferencias> list = new ArrayList<Preferencias>(Arrays.asList(p));
+            for (Preferencias p1: list){
+                if(id == p1.getNroIntPref()){
+
+                    return p1.isSelected();
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private void displayListView(ArrayList<Preferencias> preferenciasList) {
+        for (Preferencias p: preferenciasList){
+            p.setSelected(isSelected(p.getNroIntPref()));
+        }
         dataAdapter = new MyCustomAdapter(this,
-                R.layout.preferences_info, preferenceList);
+                R.layout.preferences_info, preferenciasList);
         ListView listView = (ListView) findViewById(R.id.listView1);
         listView.setAdapter(dataAdapter);
     }
@@ -83,15 +117,16 @@ public class ProfileSetupActivity extends AppCompatActivity {
                 int selectCount = 0;
                 StringBuffer responseText = new StringBuffer();
                 responseText.append(R.string.preferencias_selecionadas + "... \n");
-                ArrayList<Preference> preferenceList = dataAdapter.preferenceList;
+                ArrayList<Preferencias> preferenciasList = dataAdapter.preferenciasList;
 
-                for (int i = 0; i < preferenceList.size(); i++) {
-                    Preference Preference = preferenceList.get(i);
-                    if (Preference.isSelected()) {
+                for (int i = 0; i < preferenciasList.size(); i++) {
+                    Preferencias Preferencias = preferenciasList.get(i);
+                    if (Preferencias.isSelected()) {
                         selectCount++;
-                        responseText.append("\n").append(Preference.toString());
+                        responseText.append("\n").append(Preferencias.toString());
                     }
                 }
+                Toast.makeText(ProfileSetupActivity.this, ""+selectCount, Toast.LENGTH_SHORT).show();
                 if (selectCount == 0) {
                     Toast.makeText(ProfileSetupActivity.this, "Por favor, selecione ao menos uma obstáculo", Toast.LENGTH_SHORT).show();
                 } else {
@@ -104,7 +139,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
                      * Save data offline
                      * */
                     Gson gson = new Gson();
-                    String offlineData = gson.toJson(preferenceList);
+                    String offlineData = gson.toJson(preferenciasList);
                     settings.edit().putString(Constants.getUserDataPreference(), offlineData).commit();
                     Intent i = new Intent(ProfileSetupActivity.this, SearchActivity.class);
                     startActivity(i);
@@ -149,15 +184,15 @@ public class ProfileSetupActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class MyCustomAdapter extends ArrayAdapter<Preference> {
+    private class MyCustomAdapter extends ArrayAdapter<Preferencias> {
 
-        private ArrayList<Preference> preferenceList;
+        private ArrayList<Preferencias> preferenciasList;
 
         public MyCustomAdapter(Context context, int textViewResourceId,
-                               ArrayList<Preference> preferenceList) {
-            super(context, textViewResourceId, preferenceList);
-            this.preferenceList = new ArrayList<Preference>();
-            this.preferenceList.addAll(preferenceList);
+                               ArrayList<Preferencias> preferenciasList) {
+            super(context, textViewResourceId, preferenciasList);
+            this.preferenciasList = new ArrayList<Preferencias>();
+            this.preferenciasList.addAll(preferenciasList);
         }
 
         @Override
@@ -180,18 +215,18 @@ public class ProfileSetupActivity extends AppCompatActivity {
                 holder.name.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         CheckBox cb = (CheckBox) v;
-                        Preference Preference = (Preference) cb.getTag();
-                        Preference.setSelected(cb.isChecked());
+                        Preferencias Preferencias = (Preferencias) cb.getTag();
+                        Preferencias.setSelected(cb.isChecked());
                     }
                 });
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            Preference Preference = preferenceList.get(position);
-            holder.code.setText(" (" + Preference.getNroIntPref() + ")");
-            holder.name.setText(Preference.getNome());
-            holder.name.setChecked(Preference.isSelected());
-            holder.name.setTag(Preference);
+            Preferencias Preferencias = preferenciasList.get(position);
+            holder.code.setText(" (" + Preferencias.getNroIntPref() + ")");
+            holder.name.setText(Preferencias.getNome());
+            holder.name.setChecked(Preferencias.isSelected());
+            holder.name.setTag(Preferencias);
             return convertView;
 
         }

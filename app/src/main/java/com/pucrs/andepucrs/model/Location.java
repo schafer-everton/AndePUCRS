@@ -1,13 +1,18 @@
 package com.pucrs.andepucrs.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 
 /**
  * @author ScHaFeR
  */
 public class Location implements Serializable {
+    @Expose
     private Integer nroIntLocalizacao;
+    @Expose
     private Double latitude;
+    @Expose
     private Double longitude;
 
     public Location() {

@@ -7,28 +7,37 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.pucrs.andepucrs.AndePUCRSApplication;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
-import com.pucrs.andepucrs.model.Establishment;
+import com.pucrs.andepucrs.model.Estabelecimentos;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private AndePUCRSApplication app;
-    private ArrayList<Establishment> establishmentList;
     private EditText searchEditText;
     private Button searchButton;
+    private Spinner spinner;
+    private String resultSpinner;
+    private ProgressBar searchProgressBar;
+
+    private boolean gambi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,27 +45,40 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         searchEditText = (EditText) findViewById(R.id.searchEditText);
         searchButton = (Button) findViewById(R.id.searchButton);
+        spinner = (Spinner) findViewById(R.id.searchSpinner);
+        searchProgressBar = (ProgressBar) findViewById(R.id.searchProgressBar);
+        searchProgressBar.setVisibility(View.INVISIBLE);
+        spinner.setEnabled(false);
+        spinner.setOnItemSelectedListener(this);
+        gambi = false;
+
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                gambi = false;
                 if (searchEditText == null || searchEditText.getText().equals("") || searchEditText.getText() == null) {
                     Toast.makeText(SearchActivity.this, "Digite algo na pesquisa", Toast.LENGTH_SHORT).show();
+
                 } else {
 
                     app = (AndePUCRSApplication) getApplication();
 
                     AndePUCRSAPI webService = app.getService();
-                    webService.findAllLocations(new Callback<ArrayList<Establishment>>() {
+                    webService.findAllLocations(new Callback<ArrayList<Estabelecimentos>>() {
                         @Override
-                        public void success(ArrayList<Establishment> establishments, Response response) {
-                            establishmentList = establishments;
-                            ArrayList<String> result = searchEstabishment(searchEditText.getText().toString());
-                            if(result.size() == 1){
+                        public void success(ArrayList<Estabelecimentos> establishments, Response response) {
+                            ArrayList<Estabelecimentos> result = searchEstabishment(establishments, searchEditText.getText().toString());
 
+                            if (result.size() == 1 && (!result.isEmpty()) && !result.toString().equals("")) {
+                                Toast.makeText(SearchActivity.this, searchEstabishmentBaseOnName(establishments, result.get(0).getNome()).toString(), Toast.LENGTH_LONG).show();
+                                Intent i = new Intent(SearchActivity.this, MapsActivity.class);
+                                startActivity(i);
+                            } else {
+                                spinner.setEnabled(true);
+                                createSpinner(result);
                             }
-                            Toast.makeText(SearchActivity.this, result.toString(), Toast.LENGTH_SHORT).show();
-                            Intent i = new Intent(SearchActivity.this, MapsActivity.class);
-                            startActivity(i);
+
                         }
 
                         @Override
@@ -67,20 +89,43 @@ public class SearchActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
-    private ArrayList<String> searchEstabishment(String searchQuery) {
-        ArrayList<String> result = new ArrayList<>();
-        for (Establishment l : establishmentList) {
-            if (l.toString().contains(searchQuery)) {
-                 result.add(l.getNome());
+    private Estabelecimentos searchEstabishmentBaseOnName(ArrayList<Estabelecimentos> establishments, String searchQuery) {
+        Estabelecimentos resultEs = null;
+        for (Estabelecimentos l : establishments) {
+            if (l.getNome().contains(searchQuery)) {
+                resultEs = l;
+            }
+        }
+        return resultEs;
+    }
+
+    private ArrayList<Estabelecimentos> searchEstabishment(ArrayList<Estabelecimentos> establishments, String searchQuery) {
+        ArrayList<Estabelecimentos> result = new ArrayList<>();
+        for (Estabelecimentos l : establishments) {
+            if (l.getNome().contains(searchQuery)) {
+                result.add(l);
             }
         }
         return result;
     }
 
+    private void createSpinner(ArrayList<Estabelecimentos> pref) {
+        // Spinner Drop down elements
+        List<String> categories = new ArrayList<String>();
+        for (Estabelecimentos p : pref) {
+            categories.add(p.getNome());
+        }
+        // Creating adapter for spinner
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // attaching data adapter to spinner
+        spinner.setAdapter(dataAdapter);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -119,9 +164,23 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         Intent i = new Intent(SearchActivity.this, MainActivity.class);
         startActivity(i);
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (!gambi) {
+            resultSpinner = parent.getItemAtPosition(position).toString();
+            gambi = true;
+        } else {
+            resultSpinner = parent.getItemAtPosition(position).toString();
+            Toast.makeText(SearchActivity.this, resultSpinner, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 }

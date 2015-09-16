@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
-import com.pucrs.andepucrs.model.User;
+import com.pucrs.andepucrs.model.Usuario;
 
 import java.util.ArrayList;
 
@@ -26,7 +26,7 @@ import retrofit.client.Response;
 public class LoginActivity extends AppCompatActivity {
 
     SharedPreferences settings;
-    ArrayList<User> users = new ArrayList<User>();
+    ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
     private EditText password;
     private EditText email;
     private Button login;
@@ -45,6 +45,9 @@ public class LoginActivity extends AppCompatActivity {
         pbar = (ProgressBar) findViewById(R.id.progressBarLogin);
         pbar.setVisibility(View.INVISIBLE);
         l = false;
+        Intent intent = getIntent();
+        final String redirect = intent.getStringExtra(Constants.getRedirect());
+
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,12 +55,12 @@ public class LoginActivity extends AppCompatActivity {
                 retrofit.RestAdapter restAdapter = new retrofit.RestAdapter.Builder()
                         .setEndpoint(Constants.getServerURL()).build();
                 AndePUCRSAPI api = restAdapter.create(AndePUCRSAPI.class);
-                api.findAllUser(new Callback<ArrayList<User>>() {
+                api.findAllUser(new Callback<ArrayList<Usuario>>() {
                     @Override
-                    public void success(ArrayList<User> users, Response response) {
-                        for (User u : users) {
+                    public void success(ArrayList<Usuario> usuarios, Response response) {
+                        for (Usuario u : usuarios) {
                             if (u.getEmail().equals(email.getText().toString()) && u.getHashSenha().equals(password.getText().toString())) {
-                                Toast.makeText(LoginActivity.this, "Great", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "Sucesso", Toast.LENGTH_SHORT).show();
                                 pbar.setVisibility(View.INVISIBLE);
                                 /**
                                  * Save session
@@ -66,16 +69,25 @@ public class LoginActivity extends AppCompatActivity {
                                 settings.edit().putBoolean(Constants.getSession(), true).commit();
                                 settings.edit().putInt(Constants.getUserId(), u.getNroIntUsuario()).commit();
                                 l = true;
-                                Intent i = new Intent(LoginActivity.this, SearchActivity.class);
+                                Intent i;
+                                if (redirect.equals("CriticalPointActivity")) {
+                                    i = new Intent(LoginActivity.this, CriticalPointActivity.class);
+                                } else {
+                                    i = new Intent(LoginActivity.this, SearchActivity.class);
+                                }
                                 startActivity(i);
                             }
                         }
-                        if (!l)
+                        if (!l) {
+                            pbar.setVisibility(View.INVISIBLE);
                             Toast.makeText(LoginActivity.this, "Usuário ou senha incorretos", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
+                        pbar.setVisibility(View.INVISIBLE);
                         Toast.makeText(LoginActivity.this, "Servidor não encontrado", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -103,15 +115,15 @@ public class LoginActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-        if(id == R.id.action_maps){
+        if (id == R.id.action_maps) {
             i = new Intent(LoginActivity.this, MapsActivity.class);
             startActivity(i);
         }
-        if(id == R.id.action_profile){
+        if (id == R.id.action_profile) {
             i = new Intent(LoginActivity.this, ProfileSetupActivity.class);
             startActivity(i);
         }
-        if(id == R.id.action_search){
+        if (id == R.id.action_search) {
             i = new Intent(LoginActivity.this, SearchActivity.class);
             startActivity(i);
         }

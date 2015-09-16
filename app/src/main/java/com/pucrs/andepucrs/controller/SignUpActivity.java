@@ -17,7 +17,7 @@ import com.pucrs.andepucrs.AndePUCRSApplication;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
-import com.pucrs.andepucrs.model.User;
+import com.pucrs.andepucrs.model.Usuario;
 
 import java.util.ArrayList;
 
@@ -103,24 +103,23 @@ public class SignUpActivity extends AppCompatActivity {
                     app = (AndePUCRSApplication) getApplication();
                     AndePUCRSAPI api = app.getService();
 
-                    User user = new User(nameEditText.getText().toString(),
+                    Usuario usuario = new Usuario(nameEditText.getText().toString(),
                             emailEditText.getText().toString(),
                             passwordEditText.getText().toString());
 
-                    Log.d(Constants.getAppName(), user.toString());
-
-                    api.createUser(user,
-                            new Callback<User>() {
+                    Log.d(Constants.getAppName(), usuario.toString());
+                    api.createUser(usuario,
+                            new Callback<Usuario>() {
                                 @Override
-                                public void success(User user, Response response) {
+                                public void success(Usuario usuario, Response response) {
                                     pbar.setVisibility(View.INVISIBLE);
                                     app = (AndePUCRSApplication) getApplication();
 
                                     AndePUCRSAPI webService = app.getService();
-                                    webService.findAllUser(new Callback<ArrayList<User>>() {
+                                    webService.findAllUser(new Callback<ArrayList<Usuario>>() {
                                         @Override
-                                        public void success(ArrayList<User> users, Response response) {
-                                            for (User u : users) {
+                                        public void success(ArrayList<Usuario> usuarios, Response response) {
+                                            for (Usuario u : usuarios) {
                                                 if (u.getEmail().equals(emailEditText.getText().toString())) {
 
                                                     settings.edit().putInt(Constants.getUserId(), u.getNroIntUsuario()).commit();

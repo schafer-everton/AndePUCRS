@@ -1,10 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package com.pucrs.andepucrs.model;
+
+import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -13,15 +10,22 @@ import java.util.Collection;
  * @author ScHaFeR
  */
 public class Ponto implements Serializable {
+    @Expose
     private Integer nroIntPonto;
+    @Expose
     private String descricao;
+    @Expose
     private String status;
+    @Expose
     private Double latitude;
+    @Expose
     private Double longitude;
-    private Preference nroIntPref;
-    private Collection<UserPoint> pontoUsuarioCollection;
+    @Expose
+    private Preferencias nroIntPref;
+    @Expose
+    private Collection<PontoUsuario> pontoUsuarioCollection;
 
-    public Ponto(String descricao, String status, Double latitude, Double longitude, Preference nroIntPref) {
+    public Ponto(String descricao, String status, Double latitude, Double longitude, Preferencias nroIntPref) {
         this.descricao = descricao;
         this.status = status;
         this.latitude = latitude;
@@ -48,41 +52,6 @@ public class Ponto implements Serializable {
                 ", nroIntPref=" + nroIntPref +
                 ", pontoUsuarioCollection=" + pontoUsuarioCollection +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Ponto)) return false;
-
-        Ponto ponto = (Ponto) o;
-
-        if (getNroIntPonto() != null ? !getNroIntPonto().equals(ponto.getNroIntPonto()) : ponto.getNroIntPonto() != null)
-            return false;
-        if (getDescricao() != null ? !getDescricao().equals(ponto.getDescricao()) : ponto.getDescricao() != null)
-            return false;
-        if (getStatus() != null ? !getStatus().equals(ponto.getStatus()) : ponto.getStatus() != null)
-            return false;
-        if (getLatitude() != null ? !getLatitude().equals(ponto.getLatitude()) : ponto.getLatitude() != null)
-            return false;
-        if (getLongitude() != null ? !getLongitude().equals(ponto.getLongitude()) : ponto.getLongitude() != null)
-            return false;
-        if (getNroIntPref() != null ? !getNroIntPref().equals(ponto.getNroIntPref()) : ponto.getNroIntPref() != null)
-            return false;
-        return !(getPontoUsuarioCollection() != null ? !getPontoUsuarioCollection().equals(ponto.getPontoUsuarioCollection()) : ponto.getPontoUsuarioCollection() != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getNroIntPonto() != null ? getNroIntPonto().hashCode() : 0;
-        result = 31 * result + (getDescricao() != null ? getDescricao().hashCode() : 0);
-        result = 31 * result + (getStatus() != null ? getStatus().hashCode() : 0);
-        result = 31 * result + (getLatitude() != null ? getLatitude().hashCode() : 0);
-        result = 31 * result + (getLongitude() != null ? getLongitude().hashCode() : 0);
-        result = 31 * result + (getNroIntPref() != null ? getNroIntPref().hashCode() : 0);
-        result = 31 * result + (getPontoUsuarioCollection() != null ? getPontoUsuarioCollection().hashCode() : 0);
-        return result;
     }
 
     public Integer getNroIntPonto() {
@@ -125,19 +94,39 @@ public class Ponto implements Serializable {
         this.longitude = longitude;
     }
 
-    public Preference getNroIntPref() {
+    public Preferencias getNroIntPref() {
         return nroIntPref;
     }
 
-    public void setNroIntPref(Preference nroIntPref) {
+    public void setNroIntPref(Preferencias nroIntPref) {
         this.nroIntPref = nroIntPref;
     }
 
-    public Collection<UserPoint> getPontoUsuarioCollection() {
+    public Collection<PontoUsuario> getPontoUsuarioCollection() {
         return pontoUsuarioCollection;
     }
 
-    public void setPontoUsuarioCollection(Collection<UserPoint> pontoUsuarioCollection) {
+    public void setPontoUsuarioCollection(Collection<PontoUsuario> pontoUsuarioCollection) {
         this.pontoUsuarioCollection = pontoUsuarioCollection;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (nroIntPonto != null ? nroIntPonto.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Ponto)) {
+            return false;
+        }
+        Ponto other = (Ponto) object;
+        if ((this.nroIntPonto == null && other.nroIntPonto != null) || (this.nroIntPonto != null && !this.nroIntPonto.equals(other.nroIntPonto))) {
+            return false;
+        }
+        return true;
     }
 }

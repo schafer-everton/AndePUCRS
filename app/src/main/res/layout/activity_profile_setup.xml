@@ -17,4 +17,12 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:text="@string/save" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/prefProgressBar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="false" />
 </RelativeLayout>

@@ -10,8 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/preferencesSpinner"
-        android:layout_centerVertical="true"
-        android:spinnerMode="dropdown" />
+        android:spinnerMode="dropdown"
+        android:layout_below="@+id/obstaculoTextView"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -29,8 +30,7 @@
         android:text="@string/longitude"
         android:id="@+id/longitudeTextView"
         android:layout_below="@+id/latitudeTextView"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="65dp" />
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -38,15 +38,16 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/selecione_obstaculo"
         android:id="@+id/obstaculoTextView"
-        android:layout_above="@+id/preferencesSpinner"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/longitudeTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="39dp" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBarCriticalPoint"
         android:indeterminate="false"
-        android:layout_below="@+id/preferencesSpinner"
+        android:layout_above="@+id/errorTextView"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -54,7 +55,8 @@
         android:layout_height="wrap_content"
         android:text="@string/send"
         android:id="@+id/criticalPointButton"
-        android:layout_below="@+id/progressBarCriticalPoint"
+        android:layout_marginBottom="104dp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -62,9 +64,28 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/errorTextView"
-        android:layout_below="@+id/criticalPointButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp" />
+        android:layout_alignTop="@+id/criticalPointButton"
+        android:layout_alignStart="@+id/criticalPointButton"
+        android:layout_marginTop="63dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/commentEditText"
+        android:layout_alignEnd="@+id/preferencesSpinner"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/progressBarCriticalPoint" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/comment"
+        android:id="@+id/commentTextView"
+        android:layout_above="@+id/commentEditText"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>
