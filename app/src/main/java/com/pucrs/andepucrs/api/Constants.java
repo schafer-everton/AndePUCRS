@@ -4,7 +4,7 @@ package com.pucrs.andepucrs.api;
  * Created by ScHaFeR on 25/08/2015.
  */
 public class Constants {
-    private static final String serverURL = "http://192.168.25.3:8080";
+    private static final String serverURL = "http://192.168.0.104:8080";
     private static final String myPreferenceFile = "MyPrefsFile";
     private static final String firstTime = "myFirstTime";
     private static final String userId = "userID";
@@ -15,8 +15,19 @@ public class Constants {
     private static final String userData = "userData";
     private static final String redirect = "redirectLogin";
     private static final String appName = "AndePUCRS";
+    private static final String serachLatitude = "serachLatitude";
+    private static final String serachLongitude = "serachLongitude";
 
     public Constants() {
+    }
+
+    public static String getSerachLongitude() {
+        return serachLongitude;
+    }
+
+    public static String getSerachLatitude() {
+
+        return serachLatitude;
     }
 
     public static String getRedirect() {
