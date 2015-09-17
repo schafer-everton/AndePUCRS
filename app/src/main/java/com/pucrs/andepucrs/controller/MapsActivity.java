@@ -47,6 +47,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     private LocationRequest mLocationRequest;
     private Button markerButton;
     private Location myCurrnetLocation;
+    private LatLng search;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,15 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_maps);
         settings = getSharedPreferences(Constants.getMyPreferenceFile(), 0);
         markerButton = (Button) findViewById(R.id.markerButton);
+
+        /**
+         * Read Seach points
+         * */
+
+        double lat = Double.parseDouble(settings.getString(Constants.getSerachLatitude(),""));
+        double log = Double.parseDouble(settings.getString(Constants.getSerachLongitude(),""));
+        search = new LatLng(lat, log);
+
         setUpMapIfNeeded();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -84,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                         .build();                   // Creates a CameraPosition from the builder
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-                Log.i("MAPS INFO: My location", mMap.getMyLocation().toString());
+                //Log.i("MAPS INFO: My location", mMap.getMyLocation().toString());
             }
         });
     }
@@ -177,11 +187,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         Routing routing = new Routing.Builder()
                 .travelMode(Routing.TravelMode.WALKING)
                 .withListener(this)
-                .waypoints(new LatLng(location.getLatitude(), location.getLongitude()), end)
+                .waypoints(new LatLng(location.getLatitude(), location.getLongitude()), search)
                 .build();
         routing.execute();
-
-
     }
 
 

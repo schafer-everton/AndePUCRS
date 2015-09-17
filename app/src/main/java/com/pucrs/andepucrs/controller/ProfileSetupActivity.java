@@ -126,7 +126,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
                         responseText.append("\n").append(Preferencias.toString());
                     }
                 }
-                Toast.makeText(ProfileSetupActivity.this, ""+selectCount, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileSetupActivity.this, "Sucesso", Toast.LENGTH_SHORT).show();
                 if (selectCount == 0) {
                     Toast.makeText(ProfileSetupActivity.this, "Por favor, selecione ao menos uma obstáculo", Toast.LENGTH_SHORT).show();
                 } else {
@@ -147,6 +147,13 @@ public class ProfileSetupActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(ProfileSetupActivity.this, SearchActivity.class);
+        startActivity(i);
     }
 
     @Override

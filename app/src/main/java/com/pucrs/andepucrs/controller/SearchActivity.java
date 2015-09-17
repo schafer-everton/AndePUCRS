@@ -1,6 +1,7 @@
 package com.pucrs.andepucrs.controller;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,8 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.pucrs.andepucrs.AndePUCRSApplication;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
@@ -31,11 +34,14 @@ import retrofit.client.Response;
 public class SearchActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private AndePUCRSApplication app;
+    private SharedPreferences settings;
     private EditText searchEditText;
     private Button searchButton;
     private Spinner spinner;
     private String resultSpinner;
     private ProgressBar searchProgressBar;
+    private TextView searchTextview;
+    private ArrayList<Estabelecimentos> result;
 
     private boolean gambi;
 
@@ -43,12 +49,15 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        settings = getSharedPreferences(Constants.getMyPreferenceFile(), 0);
         searchEditText = (EditText) findViewById(R.id.searchEditText);
         searchButton = (Button) findViewById(R.id.searchButton);
         spinner = (Spinner) findViewById(R.id.searchSpinner);
         searchProgressBar = (ProgressBar) findViewById(R.id.searchProgressBar);
         searchProgressBar.setVisibility(View.INVISIBLE);
+        searchTextview = (TextView) findViewById(R.id.searchTextview);
         spinner.setEnabled(false);
+        searchTextview.setVisibility(View.INVISIBLE);
         spinner.setOnItemSelectedListener(this);
         gambi = false;
 
@@ -56,34 +65,42 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                searchProgressBar.setVisibility(View.VISIBLE);
                 gambi = false;
                 if (searchEditText == null || searchEditText.getText().equals("") || searchEditText.getText() == null) {
                     Toast.makeText(SearchActivity.this, "Digite algo na pesquisa", Toast.LENGTH_SHORT).show();
 
                 } else {
-
                     app = (AndePUCRSApplication) getApplication();
-
                     AndePUCRSAPI webService = app.getService();
                     webService.findAllLocations(new Callback<ArrayList<Estabelecimentos>>() {
                         @Override
                         public void success(ArrayList<Estabelecimentos> establishments, Response response) {
-                            ArrayList<Estabelecimentos> result = searchEstabishment(establishments, searchEditText.getText().toString());
-
+                            result = searchEstabishment(establishments, searchEditText.getText().toString());
                             if (result.size() == 1 && (!result.isEmpty()) && !result.toString().equals("")) {
+                                searchTextview.setVisibility(View.INVISIBLE);
                                 Toast.makeText(SearchActivity.this, searchEstabishmentBaseOnName(establishments, result.get(0).getNome()).toString(), Toast.LENGTH_LONG).show();
+                                Gson gson = new Gson();
+                                String latitude = gson.toJson(result.get(0).getLatitude());
+                                String longitude = gson.toJson(result.get(0).getLongitude());
+                                settings.edit().putString(Constants.getSerachLatitude(),latitude ).commit();
+                                settings.edit().putString(Constants.getSerachLongitude(), longitude).commit();
+
                                 Intent i = new Intent(SearchActivity.this, MapsActivity.class);
                                 startActivity(i);
                             } else {
                                 spinner.setEnabled(true);
                                 createSpinner(result);
+                                searchTextview.setVisibility(View.VISIBLE);
                             }
-
+                            searchProgressBar.setVisibility(View.INVISIBLE);
                         }
 
                         @Override
                         public void failure(RetrofitError error) {
+                            Toast.makeText(SearchActivity.this, "Falha ao comunicar com o Servidor, por favor, verifique a sua conexão", Toast.LENGTH_SHORT).show();
                             Log.e(Constants.getAppName(), error.toString());
+                            searchProgressBar.setVisibility(View.INVISIBLE);
                         }
                     });
                 }
@@ -171,10 +188,16 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (!gambi) {
-            resultSpinner = parent.getItemAtPosition(position).toString();
             gambi = true;
+            resultSpinner = parent.getItemAtPosition(position).toString();
         } else {
             resultSpinner = parent.getItemAtPosition(position).toString();
+            Gson gson = new Gson();
+            Estabelecimentos e = searchEstabishmentBaseOnName(result,resultSpinner);
+            String latitude = gson.toJson(e.getLatitude());
+            String longitude = gson.toJson(e.getLongitude());
+            settings.edit().putString(Constants.getSerachLatitude(),latitude ).commit();
+            settings.edit().putString(Constants.getSerachLongitude(),longitude ).commit();
             Toast.makeText(SearchActivity.this, resultSpinner, Toast.LENGTH_SHORT).show();
         }
     }
