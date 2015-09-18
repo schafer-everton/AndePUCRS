@@ -23,14 +23,19 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.Constants;
+import com.pucrs.andepucrs.model.Ponto;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -60,8 +65,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
          * Read Seach points
          * */
 
-        double lat = Double.parseDouble(settings.getString(Constants.getSerachLatitude(),""));
-        double log = Double.parseDouble(settings.getString(Constants.getSerachLongitude(),""));
+        double lat = Double.parseDouble(settings.getString(Constants.getSerachLatitude(), ""));
+        double log = Double.parseDouble(settings.getString(Constants.getSerachLongitude(), ""));
         search = new LatLng(lat, log);
 
         setUpMapIfNeeded();
@@ -74,11 +79,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         onMapReady(mMap);
 
 
+        //createAllPointsMarkers();
+
         markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                LatLng latLng = new LatLng(-30.059794, -51.1733438);
+                LatLng latLng = mMap.getCameraPosition().target;
                 MarkerOptions newMarker = new MarkerOptions()
                         .position(latLng)
                         .draggable(true)
@@ -100,13 +107,30 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
+    public void createAllPointsMarkers() {
+        Gson gson = new Gson();
+        String offlineData = settings.getString(Constants.getAllPoints(), "");
+        Ponto[] p = gson.fromJson(offlineData, Ponto[].class);
+        ArrayList<Ponto> list = new ArrayList<>(Arrays.asList(p));
+
+        for (Ponto point : list) {
+            LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+            MarkerOptions newMarker = new MarkerOptions()
+                    .position(latLng)
+                    .draggable(true)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.current_icon))
+                    .title("Lat: " + latLng.latitude + " \nLong:" + latLng.longitude);
+            Log.i("Marker Points", newMarker.getPosition().toString());
+            mMap.addMarker(newMarker);
+        }
+
+    }
+
+
     public void onMapReady(GoogleMap map) {
-        /*
-       * Load all point and setup map
-       * */
-        LatLng l = new LatLng(-30.059794, -51.1733438);
+
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(l)      // Sets the center of the map to Mountain View
+                .target(search)      // Sets the center of the map to Mountain View
                 .zoom(17)                   // Sets the zoom
                 .bearing(0)                // Sets the orientation of the camera to east
                 .tilt(0)                   // Sets the tilt of the camera to 30 degrees
@@ -119,7 +143,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(10 * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+                .setFastestInterval(1000); // 1 second, in milliseconds
     }
 
     private void setUpMapIfNeeded() {
@@ -179,9 +203,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         });
 
 
-        if(location == null){
-              location.setLatitude(-30.059794);
-              location.setLongitude(-51.1733438);
+        if (location == null) {
+            location.setLatitude(-30.059794);
+            location.setLongitude(-51.1733438);
         }
 
         Routing routing = new Routing.Builder()

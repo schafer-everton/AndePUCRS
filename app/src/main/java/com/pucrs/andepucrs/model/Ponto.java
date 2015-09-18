@@ -36,6 +36,12 @@ public class Ponto implements Serializable {
     public Ponto() {
     }
 
+    public Ponto(Double latitude, Double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.descricao = "Waypoints";
+        this.status = "ok";
+    }
 
     public Ponto(Integer nroIntPonto) {
         this.nroIntPonto = nroIntPonto;

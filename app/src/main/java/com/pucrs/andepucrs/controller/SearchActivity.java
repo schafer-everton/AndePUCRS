@@ -23,6 +23,7 @@ import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
 import com.pucrs.andepucrs.model.Estabelecimentos;
+import com.pucrs.andepucrs.model.Ponto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,8 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     private ProgressBar searchProgressBar;
     private TextView searchTextview;
     private ArrayList<Estabelecimentos> result;
-
+    private ArrayList<Estabelecimentos> allEstabilishments;
+    private ArrayList<Ponto> allPoints;
     private boolean gambi;
 
     @Override
@@ -60,7 +62,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         searchTextview.setVisibility(View.INVISIBLE);
         spinner.setOnItemSelectedListener(this);
         gambi = false;
-
+        allPoints = new ArrayList<>();
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +78,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
                     webService.findAllLocations(new Callback<ArrayList<Estabelecimentos>>() {
                         @Override
                         public void success(ArrayList<Estabelecimentos> establishments, Response response) {
+                            allEstabilishments = establishments;
                             result = searchEstabishment(establishments, searchEditText.getText().toString());
                             if (result.size() == 1 && (!result.isEmpty()) && !result.toString().equals("")) {
                                 searchTextview.setVisibility(View.INVISIBLE);
@@ -83,11 +86,10 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
                                 Gson gson = new Gson();
                                 String latitude = gson.toJson(result.get(0).getLatitude());
                                 String longitude = gson.toJson(result.get(0).getLongitude());
-                                settings.edit().putString(Constants.getSerachLatitude(),latitude ).commit();
+                                settings.edit().putString(Constants.getSerachLatitude(), latitude).commit();
                                 settings.edit().putString(Constants.getSerachLongitude(), longitude).commit();
+                                loadAllPoints();
 
-                                Intent i = new Intent(SearchActivity.this, MapsActivity.class);
-                                startActivity(i);
                             } else {
                                 spinner.setEnabled(true);
                                 createSpinner(result);
@@ -108,10 +110,40 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         });
     }
 
+    private void loadAllPoints() {
+        app = (AndePUCRSApplication) getApplication();
+        AndePUCRSAPI webService = app.getService();
+        webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
+            @Override
+            public void success(ArrayList<Ponto> pontos, Response response) {
+                allPoints = pontos;
+                for (Estabelecimentos e : allEstabilishments) {
+                    allPoints.add(new Ponto(e.getLatitude(), e.getLongitude()));
+                }
+                Log.d("pontos", allPoints.toString());
+
+                /**
+                 * Save data offline
+                 * */
+                Gson gson = new Gson();
+                String offlineData = gson.toJson(allPoints);
+                settings.edit().putString(Constants.getAllPoints(), offlineData).commit();
+                Intent i = new Intent(SearchActivity.this, MapsActivity.class);
+                startActivity(i);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+
     private Estabelecimentos searchEstabishmentBaseOnName(ArrayList<Estabelecimentos> establishments, String searchQuery) {
         Estabelecimentos resultEs = null;
         for (Estabelecimentos l : establishments) {
-            if (l.getNome().contains(searchQuery)) {
+            if (l.getNome().equals(searchQuery)) {
                 resultEs = l;
             }
         }
@@ -130,12 +162,13 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
 
     private void createSpinner(ArrayList<Estabelecimentos> pref) {
         // Spinner Drop down elements
-        List<String> categories = new ArrayList<String>();
+        List<String> categories = new ArrayList<>();
         for (Estabelecimentos p : pref) {
             categories.add(p.getNome());
         }
         // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<String> dataAdapter;
+        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
 
         // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -193,12 +226,14 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         } else {
             resultSpinner = parent.getItemAtPosition(position).toString();
             Gson gson = new Gson();
-            Estabelecimentos e = searchEstabishmentBaseOnName(result,resultSpinner);
+            Estabelecimentos e = searchEstabishmentBaseOnName(result, resultSpinner);
             String latitude = gson.toJson(e.getLatitude());
             String longitude = gson.toJson(e.getLongitude());
-            settings.edit().putString(Constants.getSerachLatitude(),latitude ).commit();
-            settings.edit().putString(Constants.getSerachLongitude(),longitude ).commit();
+            settings.edit().putString(Constants.getSerachLatitude(), latitude).commit();
+            settings.edit().putString(Constants.getSerachLongitude(), longitude).commit();
             Toast.makeText(SearchActivity.this, resultSpinner, Toast.LENGTH_SHORT).show();
+            loadAllPoints();
+
         }
     }
 

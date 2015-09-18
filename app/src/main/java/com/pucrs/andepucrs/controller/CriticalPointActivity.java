@@ -85,8 +85,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                 final LatLng latLng = new LatLng(Double.parseDouble(pointLat), Double.parseDouble(pointLong));
                 latitudeTextView.setText("Latitude: " + latLng.latitude);
                 longitudeTextView.setText("Longitude: " + latLng.longitude);
-                errorTextView.setText("Usuario ID: " + userID +
-                        "\nisLoggedIn: " + isLoggedIn);
+
                 app = (AndePUCRSApplication) getApplication();
                 final AndePUCRSAPI api = app.getService();
                 api.findAllPreferences(new Callback<ArrayList<Preferencias>>() {
@@ -102,7 +101,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                         Gson gson = new Gson();
                         String offlineData = settings.getString(Constants.getUserDataPreference(), "");
                         Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
-                        ArrayList<Preferencias> list = new ArrayList<Preferencias>(Arrays.asList(p));
+                        ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
                         createSpinner(list);
                         criticalPointButton.setEnabled(true);
                     }
@@ -144,7 +143,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                         webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
                                             @Override
                                             public void success(PontoUsuario pontoUsuario, Response response) {
-                                                Toast.makeText(CriticalPointActivity.this, "Ponto U cadastrado com sucesso!", Toast.LENGTH_LONG).show();
+                                                Toast.makeText(CriticalPointActivity.this, "Ponto Usuário cadastrado com sucesso!", Toast.LENGTH_LONG).show();
                                                 Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
                                                 startActivity(i);
                                                 pbar.setVisibility(View.INVISIBLE);
@@ -240,7 +239,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
         Gson gson = new Gson();
         String offlineData = settings.getString(Constants.getUserDataPreference(), "");
         Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
-        ArrayList<Preferencias> list = new ArrayList<Preferencias>(Arrays.asList(p));
+        ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
         for (Preferencias preferencef : list) {
             if (preferencef.getNome().equals(pref)) {
                 return preferencef;
@@ -252,12 +251,12 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
 
     private void createSpinner(ArrayList<Preferencias> pref) {
         // Spinner Drop down elements
-        List<String> categories = new ArrayList<String>();
+        List<String> categories = new ArrayList<>();
         for (Preferencias p : pref) {
             categories.add(p.getNome());
         }
         // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
 
         // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

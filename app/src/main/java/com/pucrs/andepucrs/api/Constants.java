@@ -1,8 +1,5 @@
 package com.pucrs.andepucrs.api;
 
-/**
- * Created by ScHaFeR on 25/08/2015.
- */
 public class Constants {
     private static final String serverURL = "http://192.168.0.104:8080";
     private static final String myPreferenceFile = "MyPrefsFile";
@@ -17,8 +14,13 @@ public class Constants {
     private static final String appName = "AndePUCRS";
     private static final String serachLatitude = "serachLatitude";
     private static final String serachLongitude = "serachLongitude";
+    private static final String allPoints = "allPoints";
 
     public Constants() {
+    }
+
+    public static String getAllPoints() {
+        return allPoints;
     }
 
     public static String getSerachLongitude() {

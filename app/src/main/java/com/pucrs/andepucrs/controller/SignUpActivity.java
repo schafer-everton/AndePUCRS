@@ -125,15 +125,24 @@ public class SignUpActivity extends AppCompatActivity {
                                                     settings.edit().putInt(Constants.getUserId(), u.getNroIntUsuario()).commit();
                                                     Gson gson = new Gson();
                                                     String offlineData = gson.toJson(u);
+                                                    /**
+                                                     * Save user id
+                                                     * */
                                                     settings.edit().putString(Constants.getUserData(), offlineData).commit();
+                                                    /**
+                                                     * Save 1st time
+                                                     * */
+                                                    settings.edit().putBoolean(Constants.getFirstTime(), false).commit();
+
                                                     Intent i = new Intent(SignUpActivity.this, ProfileSetupActivity.class);
                                                     startActivity(i);
                                                 }
                                             }
                                         }
+
                                         @Override
                                         public void failure(RetrofitError error) {
-                                            errorTextView.setText("READ"+error.toString());
+                                            errorTextView.setText("READ" + error.toString());
                                         }
                                     });
                                 }
@@ -141,14 +150,13 @@ public class SignUpActivity extends AppCompatActivity {
                                 @Override
                                 public void failure(RetrofitError error) {
                                     pbar.setVisibility(View.INVISIBLE);
-                                    if (error.getKind().toString() == "NETWORK") {
+                                    if (error.getKind().toString().equals("NETWORK")) {
                                         Log.e(Constants.getAppName(), error.toString());
                                         errorTextView.setText("Servidor não encontrado, por favor verifique a sua conexão ou contate o administrador do AndePUCRS");
-                                    }else if(error.getMessage().contains("500")){
+                                    } else if (error.getMessage().contains("500")) {
                                         errorTextView.setText("Usuário já cadastrado!");
                                         Log.e(Constants.getAppName(), error.toString());
-                                    }
-                                    else {
+                                    } else {
                                         errorTextView.setText(error.toString());
                                         Log.e(Constants.getAppName(), error.toString());
                                     }
@@ -161,34 +169,27 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     protected boolean validatePassword(String password, String passwordVerify) {
-        if (password.length() >= 6 && password.equals(passwordVerify)) {
-            return true;
-        }
-        return false;
+        return password.length() >= 6 && password.equals(passwordVerify);
     }
 
     protected boolean validateEmail(String email) {
-        if (email.length() >= 5 && email.contains("@")) {
-            return true;
-        }
+        if (email.length() >= 5 && email.contains("@")) return true;
         return false;
     }
 
     /**
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
+     @Override public boolean onCreateOptionsMenu(Menu menu) {
+     // Inflate the menu; this adds items to the action bar if it is present.
+     getMenuInflater().inflate(R.menu.menu_home, menu);
+     return true;
+     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
+     @Override public boolean onOptionsItemSelected(MenuItem item) {
+     int id = item.getItemId();
+     if (id == R.id.action_settings) {
+     return true;
+     }
+     return super.onOptionsItemSelected(item);
+     }*/
 }

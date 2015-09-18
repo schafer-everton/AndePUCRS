@@ -1,20 +1,43 @@
-<RelativeLayout
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    tools:context=".MapActivity">
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.pucrs.andepucrs.controller.MapsActivity" />
+
+    <Button
+        android:id="@+id/starButton"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:drawableLeft="@drawable/star_icon" />
 
     <Button
         android:id="@+id/markerButton"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="center_horizontal|center_vertical"
-        android:drawableLeft="@drawable/google_marker_small"/>
+        android:layout_gravity="right|center_vertical"
+        android:drawableLeft="@drawable/google_marker_small" />
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:id="@+id/map"
-        tools:context="com.pucrs.andepucrs.controller.MapsActivity"
-        android:name="com.google.android.gms.maps.SupportMapFragment" />
+    <Button
+        android:id="@+id/commentButton"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:drawableLeft="@drawable/cloud_icon" />
 
-</RelativeLayout>
+    <Button
+        android:id="@+id/turnbyturnButton"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|center_vertical"
+        android:drawableLeft="@drawable/turn_by_turn_ico" />
+
+</FrameLayout>

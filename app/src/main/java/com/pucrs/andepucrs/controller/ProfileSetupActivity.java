@@ -40,8 +40,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
     Button saveProfile;
     SharedPreferences settings;
     MyCustomAdapter dataAdapter = null;
-    private AndePUCRSApplication app;
     ProgressBar pbar;
+    private AndePUCRSApplication app;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,29 +66,34 @@ public class ProfileSetupActivity extends AppCompatActivity {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.e(Constants.getAppName(), "Falha ao buscar pref do server");
+                Log.e(Constants.getAppName(), "Falha ao buscar preferencias no server, será usadas as preferencias offline");
                 Gson gson = new Gson();
                 String offlineData = settings.getString(Constants.getUserDataPreference(), "");
                 Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
-                ArrayList<Preferencias> list = new ArrayList<Preferencias>(Arrays.asList(p));
-                displayListView(list);
-                checkButtonClick();
-                pbar.setVisibility(View.INVISIBLE);
-                myButton.setEnabled(true);
+                if (p != null) {
+                    ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
+                    displayListView(list);
+                    checkButtonClick();
+                    pbar.setVisibility(View.INVISIBLE);
+                    myButton.setEnabled(true);
+
+                } else {
+                    Toast.makeText(ProfileSetupActivity.this, "Falha ao buscar preferencias no server\nVerifique a seu conexão", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
 
     }
 
-    private boolean isSelected(int id){
+    private boolean isSelected(int id) {
         Gson gson = new Gson();
         String offlineData = settings.getString(Constants.getUserDataPreference(), "");
         Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
-        if(p != null){
-            ArrayList<Preferencias> list = new ArrayList<Preferencias>(Arrays.asList(p));
-            for (Preferencias p1: list){
-                if(id == p1.getNroIntPref()){
+        if (p != null) {
+            ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
+            for (Preferencias p1 : list) {
+                if (id == p1.getNroIntPref()) {
 
                     return p1.isSelected();
                 }
@@ -99,7 +104,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
     }
 
     private void displayListView(ArrayList<Preferencias> preferenciasList) {
-        for (Preferencias p: preferenciasList){
+        for (Preferencias p : preferenciasList) {
             p.setSelected(isSelected(p.getNroIntPref()));
         }
         dataAdapter = new MyCustomAdapter(this,
@@ -130,10 +135,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
                 if (selectCount == 0) {
                     Toast.makeText(ProfileSetupActivity.this, "Por favor, selecione ao menos uma obstáculo", Toast.LENGTH_SHORT).show();
                 } else {
-                    /**
-                     * Save 1st time (end configuration section)
-                     * */
-                    settings.edit().putBoolean(Constants.getFirstTime(), false).commit();
+
 
                     /**
                      * Save data offline
@@ -175,15 +177,15 @@ public class ProfileSetupActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-        if(id == R.id.action_maps){
+        if (id == R.id.action_maps) {
             i = new Intent(ProfileSetupActivity.this, MapsActivity.class);
             startActivity(i);
         }
-        if(id == R.id.action_profile){
+        if (id == R.id.action_profile) {
             i = new Intent(ProfileSetupActivity.this, ProfileSetupActivity.class);
             startActivity(i);
         }
-        if(id == R.id.action_search){
+        if (id == R.id.action_search) {
             i = new Intent(ProfileSetupActivity.this, SearchActivity.class);
             startActivity(i);
         }
@@ -198,7 +200,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
         public MyCustomAdapter(Context context, int textViewResourceId,
                                ArrayList<Preferencias> preferenciasList) {
             super(context, textViewResourceId, preferenciasList);
-            this.preferenciasList = new ArrayList<Preferencias>();
+            this.preferenciasList = new ArrayList<>();
             this.preferenciasList.addAll(preferenciasList);
         }
 
@@ -206,7 +208,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             ViewHolder holder = null;
-            Log.v("ConvertView", String.valueOf(position));
+            //Log.v("ConvertView", String.valueOf(position));
 
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater) getSystemService(
