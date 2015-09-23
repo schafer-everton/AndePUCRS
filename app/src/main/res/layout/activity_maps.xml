@@ -13,18 +13,11 @@
         tools:context="com.pucrs.andepucrs.controller.MapsActivity" />
 
     <Button
-        android:id="@+id/starButton"
+        android:id="@+id/favoriteButton"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_gravity="left|bottom"
         android:drawableLeft="@drawable/star_icon" />
-
-    <Button
-        android:id="@+id/markerButton"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|center_vertical"
-        android:drawableLeft="@drawable/google_marker_small" />
 
     <Button
         android:id="@+id/commentButton"
@@ -37,7 +30,15 @@
         android:id="@+id/turnbyturnButton"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|center_vertical"
+        android:layout_gravity="center_horizontal|bottom"
         android:drawableLeft="@drawable/turn_by_turn_ico" />
+
+    <Button
+        android:id="@+id/markerButton"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+
+        android:drawableLeft="@drawable/google_marker_small"
+        android:layout_gravity="right|center_vertical" />
 
 </FrameLayout>

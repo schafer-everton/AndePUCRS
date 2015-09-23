@@ -32,7 +32,7 @@
             android:name=".controller.ProfileSetupActivity"
             android:label="@string/app_name" />
         <activity
-            android:name=".controller.MainActivity"
+            android:name=".controller.HomeActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,6 +63,22 @@
         <activity
             android:name=".controller.MapsActivityTESTE"
             android:label="@string/title_activity_maps_activity_teste" >
+        </activity>
+        <activity
+            android:name=".controller.FavoriteActivity"
+            android:label="@string/title_activity_favorite" >
+        </activity>
+        <activity
+            android:name=".controller.CommentActivity"
+            android:label="@string/title_activity_comment" >
+        </activity>
+        <activity
+            android:name=".controller.FavoriteDetailsActivity"
+            android:label="@string/title_activity_favorite_details" >
+        </activity>
+        <activity
+            android:name=".controller.TurnByTurnActivity"
+            android:label="@string/title_activity_turn_by_turn" >
         </activity>
     </application>
 

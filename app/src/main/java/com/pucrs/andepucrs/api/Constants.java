@@ -1,7 +1,7 @@
 package com.pucrs.andepucrs.api;
 
 public class Constants {
-    private static final String serverURL = "http://192.168.0.104:8080";
+    private static final String serverURL = "http://192.168.25.4:8080";
     private static final String myPreferenceFile = "MyPrefsFile";
     private static final String firstTime = "myFirstTime";
     private static final String userId = "userID";
@@ -12,24 +12,48 @@ public class Constants {
     private static final String userData = "userData";
     private static final String redirect = "redirectLogin";
     private static final String appName = "AndePUCRS";
-    private static final String serachLatitude = "serachLatitude";
-    private static final String serachLongitude = "serachLongitude";
+    private static final String serachPoint = "serachPoint";
     private static final String allPoints = "allPoints";
+    private static final String favorite = "favorite";
+    private static final String establishments = "establishments";
+    private static final String myCurrentLocation = "myCurrentLocation";
+    private static final String user = "user";
+    private static final String turnByTurn = "turnByTurn";
+    private static final String favoriteDetails = "favoriteDetails";
 
     public Constants() {
     }
 
+    public static String getFavoriteDetails() {
+        return favoriteDetails;
+    }
+
+    public static String getTurnByTurn() {
+        return turnByTurn;
+    }
+
+    public static String getUser() {
+        return user;
+    }
+
+    public static String getMyCurrentLocation() {
+        return myCurrentLocation;
+    }
+
+    public static String getEstablishments() {
+        return establishments;
+    }
+
+    public static String getSerachPoint() {
+        return serachPoint;
+    }
+
+    public static String getFavorite() {
+        return favorite;
+    }
+
     public static String getAllPoints() {
         return allPoints;
-    }
-
-    public static String getSerachLongitude() {
-        return serachLongitude;
-    }
-
-    public static String getSerachLatitude() {
-
-        return serachLatitude;
     }
 
     public static String getRedirect() {

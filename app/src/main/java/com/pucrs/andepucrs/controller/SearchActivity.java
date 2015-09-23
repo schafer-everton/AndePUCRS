@@ -12,8 +12,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,20 +32,21 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class SearchActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class SearchActivity extends AppCompatActivity {
 
+
+    //implements AdapterView.OnItemSelectedListener
     private AndePUCRSApplication app;
     private SharedPreferences settings;
     private EditText searchEditText;
     private Button searchButton;
-    private Spinner spinner;
-    private String resultSpinner;
+    private ListView listView;
+    private String resultListView;
     private ProgressBar searchProgressBar;
     private TextView searchTextview;
     private ArrayList<Estabelecimentos> result;
     private ArrayList<Estabelecimentos> allEstabilishments;
     private ArrayList<Ponto> allPoints;
-    private boolean gambi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,21 +55,31 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         settings = getSharedPreferences(Constants.getMyPreferenceFile(), 0);
         searchEditText = (EditText) findViewById(R.id.searchEditText);
         searchButton = (Button) findViewById(R.id.searchButton);
-        spinner = (Spinner) findViewById(R.id.searchSpinner);
+        listView = (ListView) findViewById(R.id.searchListView);
         searchProgressBar = (ProgressBar) findViewById(R.id.searchProgressBar);
         searchProgressBar.setVisibility(View.INVISIBLE);
-        searchTextview = (TextView) findViewById(R.id.searchTextview);
-        spinner.setEnabled(false);
-        searchTextview.setVisibility(View.INVISIBLE);
-        spinner.setOnItemSelectedListener(this);
-        gambi = false;
+
         allPoints = new ArrayList<>();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                resultListView = parent.getItemAtPosition(position).toString();
+                Gson gson = new Gson();
+                Estabelecimentos e = searchEstabishmentBaseOnName(result, resultListView);
+                String searchPoint = gson.toJson(e);
+                settings.edit().putString(Constants.getSerachPoint(), searchPoint).commit();
+                Toast.makeText(SearchActivity.this, resultListView, Toast.LENGTH_SHORT).show();
+                loadAllPoints();
+
+            }
+        });
+
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchProgressBar.setVisibility(View.VISIBLE);
-                gambi = false;
                 if (searchEditText == null || searchEditText.getText().equals("") || searchEditText.getText() == null) {
                     Toast.makeText(SearchActivity.this, "Digite algo na pesquisa", Toast.LENGTH_SHORT).show();
 
@@ -80,22 +91,16 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
                         public void success(ArrayList<Estabelecimentos> establishments, Response response) {
                             allEstabilishments = establishments;
                             result = searchEstabishment(establishments, searchEditText.getText().toString());
-                            if (result.size() == 1 && (!result.isEmpty()) && !result.toString().equals("")) {
-                                searchTextview.setVisibility(View.INVISIBLE);
-                                Toast.makeText(SearchActivity.this, searchEstabishmentBaseOnName(establishments, result.get(0).getNome()).toString(), Toast.LENGTH_LONG).show();
-                                Gson gson = new Gson();
-                                String latitude = gson.toJson(result.get(0).getLatitude());
-                                String longitude = gson.toJson(result.get(0).getLongitude());
-                                settings.edit().putString(Constants.getSerachLatitude(), latitude).commit();
-                                settings.edit().putString(Constants.getSerachLongitude(), longitude).commit();
-                                loadAllPoints();
-
-                            } else {
-                                spinner.setEnabled(true);
-                                createSpinner(result);
-                                searchTextview.setVisibility(View.VISIBLE);
-                            }
+                            createList(result);
                             searchProgressBar.setVisibility(View.INVISIBLE);
+
+                            /**
+                             * Save data offline
+                             * */
+                            Gson gson = new Gson();
+                            String offlineData = gson.toJson(allEstabilishments);
+                            settings.edit().putString(Constants.getEstablishments(), offlineData).commit();
+
                         }
 
                         @Override
@@ -129,6 +134,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
                 String offlineData = gson.toJson(allPoints);
                 settings.edit().putString(Constants.getAllPoints(), offlineData).commit();
                 Intent i = new Intent(SearchActivity.this, MapsActivity.class);
+                i.putExtra("FromMenu",false);
                 startActivity(i);
             }
 
@@ -153,28 +159,27 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     private ArrayList<Estabelecimentos> searchEstabishment(ArrayList<Estabelecimentos> establishments, String searchQuery) {
         ArrayList<Estabelecimentos> result = new ArrayList<>();
         for (Estabelecimentos l : establishments) {
-            if (l.getNome().contains(searchQuery)) {
+            if (l.getNome().contains(searchQuery) || l.getDescricao().contains(searchQuery)) {
                 result.add(l);
             }
         }
         return result;
     }
 
-    private void createSpinner(ArrayList<Estabelecimentos> pref) {
+    private void createList(ArrayList<Estabelecimentos> pref) {
         // Spinner Drop down elements
         List<String> categories = new ArrayList<>();
         for (Estabelecimentos p : pref) {
             categories.add(p.getNome());
         }
-        // Creating adapter for spinner
         ArrayAdapter<String> dataAdapter;
-        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, categories);
 
         // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
 
         // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
+        listView.setAdapter(dataAdapter);
     }
 
     @Override
@@ -198,6 +203,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         }
         if (id == R.id.action_maps) {
             i = new Intent(SearchActivity.this, MapsActivity.class);
+            i.putExtra("FromMenu",true);
             startActivity(i);
         }
         if (id == R.id.action_profile) {
@@ -208,37 +214,18 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
             i = new Intent(SearchActivity.this, SearchActivity.class);
             startActivity(i);
         }
+        if (id == R.id.action_favorite) {
+            i = new Intent(SearchActivity.this, FavoriteActivity.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
-        Intent i = new Intent(SearchActivity.this, MainActivity.class);
+        Intent i = new Intent(SearchActivity.this, HomeActivity.class);
         startActivity(i);
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if (!gambi) {
-            gambi = true;
-            resultSpinner = parent.getItemAtPosition(position).toString();
-        } else {
-            resultSpinner = parent.getItemAtPosition(position).toString();
-            Gson gson = new Gson();
-            Estabelecimentos e = searchEstabishmentBaseOnName(result, resultSpinner);
-            String latitude = gson.toJson(e.getLatitude());
-            String longitude = gson.toJson(e.getLongitude());
-            settings.edit().putString(Constants.getSerachLatitude(), latitude).commit();
-            settings.edit().putString(Constants.getSerachLongitude(), longitude).commit();
-            Toast.makeText(SearchActivity.this, resultSpinner, Toast.LENGTH_SHORT).show();
-            loadAllPoints();
-
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
 }

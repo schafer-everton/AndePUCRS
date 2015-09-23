@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.pucrs.andepucrs.controller.MainActivity">
+    tools:context="com.pucrs.andepucrs.controller.HomeActivity">
     <item
         android:id="@+id/action_profile"
         android:orderInCategory="100"
@@ -18,6 +18,11 @@
         android:id="@+id/action_search"
         android:orderInCategory="100"
         android:title="@string/title_activity_search"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_favorite"
+        android:orderInCategory="100"
+        android:title="@string/title_activity_favorite"
         app:showAsAction="never" />
 
     <item

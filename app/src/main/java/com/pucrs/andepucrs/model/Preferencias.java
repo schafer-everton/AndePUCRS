@@ -101,4 +101,15 @@ public class Preferencias implements Serializable {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Preferencias{" +
+                "valor=" + valor +
+                ", selected=" + selected +
+                ", nroIntPref=" + nroIntPref +
+                ", nome='" + nome + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

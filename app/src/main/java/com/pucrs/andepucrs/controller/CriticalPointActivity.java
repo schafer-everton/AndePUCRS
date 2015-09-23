@@ -51,6 +51,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
     private String selectedItem;
     private EditText commentEditText;
     private PontoUsuario pontoUsuario;
+    private ArrayList<Preferencias> preferencias;
 
 
     @Override
@@ -91,6 +92,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                 api.findAllPreferences(new Callback<ArrayList<Preferencias>>() {
                     @Override
                     public void success(ArrayList<Preferencias> preferenciases, Response response) {
+                        preferencias = preferenciases;
                         createSpinner(preferenciases);
                         criticalPointButton.setEnabled(true);
                     }
@@ -101,132 +103,144 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                         Gson gson = new Gson();
                         String offlineData = settings.getString(Constants.getUserDataPreference(), "");
                         Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
-                        ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
-                        createSpinner(list);
-                        criticalPointButton.setEnabled(true);
+                        if(p != null){
+                            ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
+                            preferencias = list;
+                            createSpinner(list);
+                            criticalPointButton.setEnabled(true);
+                        }else{
+                            Toast.makeText(CriticalPointActivity.this, "Falha ao contactar o servidor, por favor, verifique a sua conexão", Toast.LENGTH_SHORT).show();
+                            pbar.setVisibility(View.INVISIBLE);
+                        }
+
                     }
                 });
 
                 criticalPointButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (preferencesSpinner.getSelectedItem() == null) {
-                            errorTextView.setText("Por favor, selecione um obstáculo!");
+                        if (commentEditText.getText().toString().equals("") || commentEditText.getText().toString() == null) {
+                            commentEditText.requestFocus();
+                            Toast.makeText(CriticalPointActivity.this, "Informe um comentário", Toast.LENGTH_SHORT).show();
                         } else {
-                            errorTextView.setText(errorTextView.getText() + selectedItem);
-                            pbar.setVisibility(View.VISIBLE);
-                            final AndePUCRSAPI webService = app.getService();
-
-
-                            /**
-                             * Send PontoUsuario, first find the user point id with find all
-                             * */
-                            webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
-                                @Override
-                                public void success(ArrayList<Ponto> pontos, Response response) {
-                                    boolean pontoCadastrado = false;
-                                    Ponto pReady = new Ponto();
-                                    for (Ponto p : pontos) {
-                                        if (p.getLatitude() == latLng.latitude && p.getLongitude() == latLng.longitude) {
-                                            pontoCadastrado = true;
-                                            pReady = p;
+                            if (preferencesSpinner.getSelectedItem() == null) {
+                                errorTextView.setText("Por favor, selecione um obstáculo!");
+                            } else {
+                                pbar.setVisibility(View.VISIBLE);
+                                final AndePUCRSAPI webService = app.getService();
+                                /**
+                                 * Send PontoUsuario, first find the user point id with find all
+                                 * */
+                                webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
+                                    @Override
+                                    public void success(ArrayList<Ponto> pontos, Response response) {
+                                        boolean pontoCadastrado = false;
+                                        Ponto pReady = new Ponto();
+                                        for (Ponto p : pontos) {
+                                            if (p.getLatitude() == latLng.latitude && p.getLongitude() == latLng.longitude) {
+                                                pontoCadastrado = true;
+                                                pReady = p;
+                                            }
                                         }
-                                    }
-                                    /**
-                                     * If Point is already on the server, send user point
-                                     * */
-                                    if (pontoCadastrado) {
-                                        pontoUsuario.setPontoUsuarioPK(new PontoUsuarioPK(pReady.getNroIntPonto(), Integer.parseInt(String.valueOf(userID))));
-                                        pontoUsuario.setUsuario(new Usuario(Integer.parseInt(String.valueOf(userID))));
-                                        pontoUsuario.setPonto(pReady);
-                                        pontoUsuario.setComentario(commentEditText.getText().toString());
-                                        webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
-                                            @Override
-                                            public void success(PontoUsuario pontoUsuario, Response response) {
-                                                Toast.makeText(CriticalPointActivity.this, "Ponto Usuário cadastrado com sucesso!", Toast.LENGTH_LONG).show();
-                                                Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                startActivity(i);
-                                                pbar.setVisibility(View.INVISIBLE);
-                                            }
+                                        /**
+                                         * If Point is already on the server, send user point
+                                         * */
+                                        if (pontoCadastrado) {
+                                            pontoUsuario.setPontoUsuarioPK(new PontoUsuarioPK(pReady.getNroIntPonto(), Integer.parseInt(String.valueOf(userID))));
+                                            pontoUsuario.setUsuario(new Usuario(Integer.parseInt(String.valueOf(userID))));
+                                            pontoUsuario.setPonto(pReady);
+                                            pontoUsuario.setComentario(commentEditText.getText().toString());
+                                            webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
+                                                @Override
+                                                public void success(PontoUsuario pontoUsuario, Response response) {
+                                                    Toast.makeText(CriticalPointActivity.this, "Ponto Usuário cadastrado com sucesso!", Toast.LENGTH_LONG).show();
+                                                    Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
+                                                    i.putExtra("FromMenu",false);
+                                                    startActivity(i);
+                                                    pbar.setVisibility(View.INVISIBLE);
+                                                }
 
-                                            @Override
-                                            public void failure(RetrofitError error) {
-                                                pbar.setVisibility(View.INVISIBLE);
-                                                Toast.makeText(CriticalPointActivity.this, "Ponto Já cadastrado", Toast.LENGTH_SHORT).show();
-                                                Log.e(Constants.getAppName() + "Send USERPOINT", error.toString());
-                                            }
-                                        });
-                                    }
+                                                @Override
+                                                public void failure(RetrofitError error) {
+                                                    pbar.setVisibility(View.INVISIBLE);
+                                                    Toast.makeText(CriticalPointActivity.this, "Ponto Já cadastrado", Toast.LENGTH_SHORT).show();
+                                                    Log.e(Constants.getAppName() + "Send USERPOINT", error.toString());
+                                                }
+                                            });
+                                        }
 
-                                    /**
-                                     * Send point and letter user point
-                                     * */
-                                    else {
-                                        Ponto p;
-                                        Preferencias prefSelected = findPreference(selectedItem);
-                                        p = new Ponto("Critico", "revisao", latLng.latitude, latLng.longitude, prefSelected);
-                                        webService.createPoint(p, new Callback<Ponto>() {
-                                            @Override
-                                            public void success(Ponto ponto, Response response) {
-                                                Toast.makeText(CriticalPointActivity.this, "Ponto cadastrado com sucesso!", Toast.LENGTH_LONG).show();
-                                                webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
-                                                    @Override
-                                                    public void success(ArrayList<Ponto> pontos, Response response) {
-                                                        for (Ponto p : pontos) {
-                                                            if (p.getLatitude() == latLng.latitude && p.getLongitude() == latLng.longitude) {
-                                                                pontoUsuario.setPontoUsuarioPK(new PontoUsuarioPK(p.getNroIntPonto(), Integer.parseInt(String.valueOf(userID))));
-                                                                pontoUsuario.setUsuario(new Usuario(Integer.parseInt(String.valueOf(userID))));
-                                                                pontoUsuario.setPonto(p);
-                                                                pontoUsuario.setComentario(commentEditText.getText().toString());
-                                                                webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
-                                                                    @Override
-                                                                    public void success(PontoUsuario pontoUsuario, Response response) {
-                                                                        Toast.makeText(CriticalPointActivity.this, "Ponto do U cadastrado com sucesso!", Toast.LENGTH_LONG).show();
-                                                                        Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                                        startActivity(i);
-                                                                        pbar.setVisibility(View.INVISIBLE);
-                                                                    }
+                                        /**
+                                         * Send point and later user point
+                                         * */
+                                        else {
+                                            Ponto p;
+                                            Preferencias prefSelected = findPreference(selectedItem);
+                                            p = new Ponto("Critico", "revisao", latLng.latitude, latLng.longitude, prefSelected);
+                                            webService.createPoint(p, new Callback<Ponto>() {
+                                                @Override
+                                                public void success(Ponto ponto, Response response) {
+                                                    Toast.makeText(CriticalPointActivity.this, "Ponto cadastrado com sucesso!", Toast.LENGTH_LONG).show();
+                                                    webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
+                                                        @Override
+                                                        public void success(ArrayList<Ponto> pontos, Response response) {
+                                                            for (Ponto p : pontos) {
+                                                                if (p.getLatitude() == latLng.latitude && p.getLongitude() == latLng.longitude) {
+                                                                    pontoUsuario.setPontoUsuarioPK(new PontoUsuarioPK(p.getNroIntPonto(), Integer.parseInt(String.valueOf(userID))));
+                                                                    pontoUsuario.setUsuario(new Usuario(Integer.parseInt(String.valueOf(userID))));
+                                                                    pontoUsuario.setPonto(p);
+                                                                    pontoUsuario.setComentario(commentEditText.getText().toString());
+                                                                    webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
+                                                                        @Override
+                                                                        public void success(PontoUsuario pontoUsuario, Response response) {
+                                                                            Toast.makeText(CriticalPointActivity.this, "Ponto do U cadastrado com sucesso!", Toast.LENGTH_LONG).show();
+                                                                            Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
+                                                                            i.putExtra("FromMenu",false);
+                                                                            startActivity(i);
+                                                                            pbar.setVisibility(View.INVISIBLE);
+                                                                        }
 
-                                                                    @Override
-                                                                    public void failure(RetrofitError error) {
-                                                                        pbar.setVisibility(View.INVISIBLE);
-                                                                        Toast.makeText(CriticalPointActivity.this, "Falha, contate o ADM", Toast.LENGTH_SHORT).show();
-                                                                        Log.e(Constants.getAppName() + "Send USERPOINT", error.toString());
-                                                                    }
-                                                                });
-                                                                break;
+                                                                        @Override
+                                                                        public void failure(RetrofitError error) {
+                                                                            pbar.setVisibility(View.INVISIBLE);
+                                                                            Toast.makeText(CriticalPointActivity.this, "Falha, contate o ADM", Toast.LENGTH_SHORT).show();
+                                                                            Log.e(Constants.getAppName() + "Send USERPOINT", error.toString());
+                                                                        }
+                                                                    });
+                                                                    break;
+                                                                }
                                                             }
                                                         }
-                                                    }
 
-                                                    @Override
-                                                    public void failure(RetrofitError error) {
-                                                        pbar.setVisibility(View.INVISIBLE);
-                                                        Toast.makeText(CriticalPointActivity.this, "Servidor não encontrado", Toast.LENGTH_SHORT).show();
-                                                        Log.e(Constants.getAppName() + "Send Point", error.toString());
-                                                    }
-                                                });
-                                            }
+                                                        @Override
+                                                        public void failure(RetrofitError error) {
+                                                            pbar.setVisibility(View.INVISIBLE);
+                                                            Toast.makeText(CriticalPointActivity.this, "Servidor não encontrado", Toast.LENGTH_SHORT).show();
+                                                            Log.e(Constants.getAppName() + "Send Point", error.toString());
+                                                        }
+                                                    });
+                                                }
 
-                                            @Override
-                                            public void failure(RetrofitError error) {
-                                                pbar.setVisibility(View.INVISIBLE);
+                                                @Override
+                                                public void failure(RetrofitError error) {
+                                                    pbar.setVisibility(View.INVISIBLE);
 
-                                                Log.e(Constants.getAppName() + "Send Point", error.toString());
-                                            }
-                                        });
+                                                    Log.e(Constants.getAppName() + "Send Point", error.toString());
+                                                }
+                                            });
 
+                                        }
                                     }
-                                }
 
-                                @Override
-                                public void failure(RetrofitError error) {
-                                    pbar.setVisibility(View.INVISIBLE);
-                                    Toast.makeText(CriticalPointActivity.this, "Servidor não encontrado", Toast.LENGTH_SHORT).show();
-                                    Log.e(Constants.getAppName() + "READ ALL POINTS", error.toString());
-                                }
-                            });
+                                    @Override
+                                    public void failure(RetrofitError error) {
+                                        pbar.setVisibility(View.INVISIBLE);
+                                        Toast.makeText(CriticalPointActivity.this, "Servidor não encontrado", Toast.LENGTH_SHORT).show();
+                                        Log.e(Constants.getAppName() + "READ ALL POINTS", error.toString());
+                                    }
+                                });
+                            }
                         }
+
                     }
                 });
             } catch (NumberFormatException n) {
@@ -236,10 +250,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
     }
 
     private Preferencias findPreference(String pref) {
-        Gson gson = new Gson();
-        String offlineData = settings.getString(Constants.getUserDataPreference(), "");
-        Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
-        ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
+        ArrayList<Preferencias> list = preferencias;
         for (Preferencias preferencef : list) {
             if (preferencef.getNome().equals(pref)) {
                 return preferencef;
@@ -250,18 +261,14 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
 
 
     private void createSpinner(ArrayList<Preferencias> pref) {
-        // Spinner Drop down elements
         List<String> categories = new ArrayList<>();
         for (Preferencias p : pref) {
             categories.add(p.getNome());
         }
-        // Creating adapter for spinner
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
 
-        // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // attaching data adapter to spinner
         preferencesSpinner.setAdapter(dataAdapter);
         pbar.setVisibility(View.INVISIBLE);
     }
@@ -269,7 +276,6 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -277,18 +283,15 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         Intent i;
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
         if (id == R.id.action_maps) {
             i = new Intent(CriticalPointActivity.this, MapsActivity.class);
+            i.putExtra("FromMenu",true);
             startActivity(i);
         }
         if (id == R.id.action_profile) {
@@ -297,6 +300,10 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
         }
         if (id == R.id.action_search) {
             i = new Intent(CriticalPointActivity.this, SearchActivity.class);
+            startActivity(i);
+        }
+        if (id == R.id.action_favorite) {
+            i = new Intent(CriticalPointActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
 

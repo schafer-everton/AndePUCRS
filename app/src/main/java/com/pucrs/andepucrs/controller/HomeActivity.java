@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.Constants;
 
-public class MainActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,10 +18,10 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(Constants.getMyPreferenceFile(), 0);
 
         if (settings.getBoolean(Constants.getFirstTime(), true)) {
-            Intent i = new Intent(MainActivity.this, SignUpActivity.class);
+            Intent i = new Intent(HomeActivity.this, SignUpActivity.class);
             startActivity(i);
         } else {
-            Intent i = new Intent(MainActivity.this, SearchActivity.class);
+            Intent i = new Intent(HomeActivity.this, SearchActivity.class);
             startActivity(i);
         }
     }

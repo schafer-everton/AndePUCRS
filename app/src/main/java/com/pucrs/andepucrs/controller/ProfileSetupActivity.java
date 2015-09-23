@@ -74,12 +74,13 @@ public class ProfileSetupActivity extends AppCompatActivity {
                     ArrayList<Preferencias> list = new ArrayList<>(Arrays.asList(p));
                     displayListView(list);
                     checkButtonClick();
-                    pbar.setVisibility(View.INVISIBLE);
                     myButton.setEnabled(true);
 
                 } else {
+                    myButton.setEnabled(false);
                     Toast.makeText(ProfileSetupActivity.this, "Falha ao buscar preferencias no server\nVerifique a seu conexão", Toast.LENGTH_LONG).show();
                 }
+                pbar.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -179,6 +180,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
         }
         if (id == R.id.action_maps) {
             i = new Intent(ProfileSetupActivity.this, MapsActivity.class);
+            i.putExtra("FromMenu",true);
             startActivity(i);
         }
         if (id == R.id.action_profile) {
@@ -187,6 +189,10 @@ public class ProfileSetupActivity extends AppCompatActivity {
         }
         if (id == R.id.action_search) {
             i = new Intent(ProfileSetupActivity.this, SearchActivity.class);
+            startActivity(i);
+        }
+        if (id == R.id.action_favorite) {
+            i = new Intent(ProfileSetupActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
 

@@ -1,5 +1,6 @@
 package com.pucrs.andepucrs.api;
 
+import com.pucrs.andepucrs.model.Comentario;
 import com.pucrs.andepucrs.model.Estabelecimentos;
 import com.pucrs.andepucrs.model.Ponto;
 import com.pucrs.andepucrs.model.PontoUsuario;
@@ -36,4 +37,9 @@ public interface AndePUCRSAPI {
 
     @POST("/AndePUCRS-WebService-DBv4/webresources/com.andepucrs.ws.pontousuario")
     void createUserPoint(@Body PontoUsuario pontoUsuario, Callback<PontoUsuario> response);
+
+    @POST("/AndePUCRS-WebService-DBv4/webresources/com.andepucrs.ws.comentario")
+    void sendComment(@Body Comentario comment, Callback<Comentario> response);
+
+
 }

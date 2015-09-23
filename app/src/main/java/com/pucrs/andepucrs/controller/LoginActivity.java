@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
@@ -60,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void success(ArrayList<Usuario> usuarios, Response response) {
                         for (Usuario u : usuarios) {
                             if (u.getEmail().equals(email.getText().toString()) && u.getHashSenha().equals(password.getText().toString())) {
-                                Toast.makeText(LoginActivity.this, "Sucesso", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "Login realizado com Sucesso", Toast.LENGTH_SHORT).show();
                                 pbar.setVisibility(View.INVISIBLE);
                                 /**
                                  * Save session
@@ -68,11 +69,17 @@ public class LoginActivity extends AppCompatActivity {
                                  * */
                                 settings.edit().putBoolean(Constants.getSession(), true).commit();
                                 settings.edit().putInt(Constants.getUserId(), u.getNroIntUsuario()).commit();
+                                Gson gson = new Gson();
+                                String offline = gson.toJson(u);
+                                settings.edit().putString(Constants.getUser(), offline).commit();
                                 l = true;
                                 Intent i;
                                 if (redirect.equals("CriticalPointActivity")) {
                                     i = new Intent(LoginActivity.this, CriticalPointActivity.class);
-                                } else {
+                                }else if(redirect.equals("CommentActivity")){
+                                    i = new Intent(LoginActivity.this, CommentActivity.class);
+                                }
+                                else {
                                     i = new Intent(LoginActivity.this, SearchActivity.class);
                                 }
                                 startActivity(i);
@@ -117,6 +124,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         if (id == R.id.action_maps) {
             i = new Intent(LoginActivity.this, MapsActivity.class);
+            i.putExtra("FromMenu",true);
             startActivity(i);
         }
         if (id == R.id.action_profile) {
@@ -125,6 +133,10 @@ public class LoginActivity extends AppCompatActivity {
         }
         if (id == R.id.action_search) {
             i = new Intent(LoginActivity.this, SearchActivity.class);
+            startActivity(i);
+        }
+        if(id == R.id.action_favorite){
+            i = new Intent(LoginActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
 
