@@ -66,8 +66,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/numberPicker"
-        android:layout_below="@+id/commentEditText"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical" />
+        android:layout_alignTop="@+id/gradeTextView"
+        android:layout_alignStart="@+id/sendCommentButton" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/speakCommentButton"
+        android:src="@drawable/ico_mic"
+        android:background="@null"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/commentEditText" />
 
 </RelativeLayout>

@@ -1,5 +1,7 @@
 package com.pucrs.andepucrs.controller;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -28,6 +30,7 @@ public class FavoriteActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayList<Favorite> savedFavorite;
     private ArrayList<Estabelecimentos> allEstablishments;
+    private int selectedPosition;
 
 
     @Override
@@ -57,17 +60,37 @@ public class FavoriteActivity extends AppCompatActivity {
             };
             final AdapterView.OnItemClickListener listener = onItemClickListener;
             listView.setOnItemClickListener(listener);
+
             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    savedFavorite.remove(position);
-                    createList(savedFavorite);
-                    /**
-                     * Save data offline
-                     * */
-                    Gson gson = new Gson();
-                    String offlineData = gson.toJson(savedFavorite);
-                    settings.edit().putString(Constants.getFavorite(), offlineData).commit();
+                    selectedPosition = position;
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(view.getContext());
+                    alertDialogBuilder.setMessage("Você tem certeza que quer deletar essa rota ?");
+                    alertDialogBuilder.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            savedFavorite.remove(selectedPosition);
+                            createList(savedFavorite);
+                            /**
+                             * Save data offline
+                             * */
+                            Gson gson = new Gson();
+                            String offlineData = gson.toJson(savedFavorite);
+                            settings.edit().putString(Constants.getFavorite(), offlineData).commit();
+                        }
+                    });
+
+                    alertDialogBuilder.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(FavoriteActivity.this, "Cancelado", Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }
+                    });
+
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
                     return true;
                 }
             });

@@ -1,8 +1,10 @@
 package com.pucrs.andepucrs.controller;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -12,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,6 +35,7 @@ import com.pucrs.andepucrs.model.Usuario;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -52,7 +56,8 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
     private EditText commentEditText;
     private PontoUsuario pontoUsuario;
     private ArrayList<Preferencias> preferencias;
-
+    private ImageButton btnSpeak;
+    private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +75,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
         pbar.setVisibility(View.VISIBLE);
         criticalPointButton.setEnabled(false);
         preferencesSpinner.setOnItemSelectedListener(this);
-
+        btnSpeak = (ImageButton) findViewById(R.id.speakCommentCriticalPointButton);
         final int userID = settings.getInt(Constants.getUserId(), 0);
         Boolean isLoggedIn = settings.getBoolean(Constants.getSession(), false);
 
@@ -81,6 +86,14 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
         } else {
             String pointLat = settings.getString(Constants.getMarkerLatitude(), "");
             String pointLong = settings.getString(Constants.getMarkerLongitude(), "");
+
+            btnSpeak.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    promptSpeechInput();
+                }
+            });
 
             try {
                 final LatLng latLng = new LatLng(Double.parseDouble(pointLat), Double.parseDouble(pointLong));
@@ -155,7 +168,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                                 public void success(PontoUsuario pontoUsuario, Response response) {
                                                     Toast.makeText(CriticalPointActivity.this, "Ponto Usuário cadastrado com sucesso!", Toast.LENGTH_LONG).show();
                                                     Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                    i.putExtra("FromMenu",false);
+                                                    i.putExtra("FromMenu",true);
                                                     startActivity(i);
                                                     pbar.setVisibility(View.INVISIBLE);
                                                 }
@@ -194,7 +207,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                                                         public void success(PontoUsuario pontoUsuario, Response response) {
                                                                             Toast.makeText(CriticalPointActivity.this, "Ponto do U cadastrado com sucesso!", Toast.LENGTH_LONG).show();
                                                                             Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                                            i.putExtra("FromMenu",false);
+                                                                            i.putExtra("FromMenu",true);
                                                                             startActivity(i);
                                                                             pbar.setVisibility(View.INVISIBLE);
                                                                         }
@@ -246,6 +259,46 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
             } catch (NumberFormatException n) {
                 Log.e(TAG, "Error to parse double: " + pointLat + "#" + pointLong);
             }
+        }
+    }
+
+    /**
+     * Showing google speech input dialog
+     * */
+    private void promptSpeechInput() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                getString(R.string.speech_prompt));
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.speech_not_supported),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Receiving speech input
+     * */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    commentEditText.setText(result.get(0));
+                }
+                break;
+            }
+
         }
     }
 

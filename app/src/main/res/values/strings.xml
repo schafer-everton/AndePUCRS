@@ -41,6 +41,8 @@
     <string name="title_activity_favorite_details">FavoriteDetailsActivity</string>
     <string name="title_activity_turn_by_turn">TurnByTurnActivity</string>
 
-
+    <string name="speech_prompt">Diga o seu local</string>
+    <string name="speech_not_supported">Desculpe, o seu dispositivo não suporta Speak to Text</string>
+    <string name="tap_on_mic">Clique no microfone para falar</string>
 </resources>
 

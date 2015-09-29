@@ -1,7 +1,7 @@
 package com.pucrs.andepucrs.api;
 
 public class Constants {
-    private static final String serverURL = "http://192.168.25.4:8080";
+    private static final String serverURL = "http://192.168.25.3:8080";
     private static final String myPreferenceFile = "MyPrefsFile";
     private static final String firstTime = "myFirstTime";
     private static final String userId = "userID";

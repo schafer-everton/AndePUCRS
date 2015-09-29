@@ -1,5 +1,7 @@
 package com.pucrs.andepucrs.controller;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -166,56 +168,75 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**
-                 * Read preferences
-                 * */
-                Gson gson = new Gson();
-                String offlineData = settings.getString(Constants.getUserDataPreference(), "");
-                Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
-                ArrayList<Preferencias> listPref;
-                if (p == null) {
-                    listPref = new ArrayList<Preferencias>();
-                } else {
-                    listPref = new ArrayList<>(Arrays.asList(p));
-                }
 
-                //Create new Favorite route
-                Favorite favoriteRoute = new Favorite(listPref, new LatLng(myfirstLocation.getLatitude(), myfirstLocation.getLongitude()), searchPoint);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(v.getContext());
+                alertDialogBuilder.setMessage("Você tem certeza que quer salvar essa rota como favorita ?");
+                alertDialogBuilder.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        /**
+                         * Read preferences
+                         * */
+                        Gson gson = new Gson();
+                        String offlineData = settings.getString(Constants.getUserDataPreference(), "");
+                        Preferencias[] p = gson.fromJson(offlineData, Preferencias[].class);
+                        ArrayList<Preferencias> listPref;
+                        if (p == null) {
+                            listPref = new ArrayList<Preferencias>();
+                        } else {
+                            listPref = new ArrayList<>(Arrays.asList(p));
+                        }
+
+                        //Create new Favorite route
+                        Favorite favoriteRoute = new Favorite(listPref, new LatLng(myfirstLocation.getLatitude(), myfirstLocation.getLongitude()), searchPoint);
 
 
-                /**
-                 * Read previous favorite routes
-                 * */
-                offlineData = settings.getString(Constants.getFavorite(), "");
-                Favorite[] f = gson.fromJson(offlineData, Favorite[].class);
-                ArrayList<Favorite> savedFavorite;
-                if (f == null) {
-                    //First favorite route
-                    savedFavorite = new ArrayList<Favorite>();
-                    savedFavorite.add(favoriteRoute);
-                    offlineData = gson.toJson(savedFavorite);
-                    settings.edit().putString(Constants.getFavorite(), offlineData).commit();
-                    Toast.makeText(MapsActivity.this, "Rota favorita cadastrada com sucesso", Toast.LENGTH_SHORT).show();
-                } else {
-                    boolean crash = false;
-                    savedFavorite = new ArrayList<>(Arrays.asList(f));
-                    for (Favorite fa : savedFavorite) {
-                        if (fa.getFinish().getLatitude() == favoriteRoute.getFinish().getLatitude() ||
-                                fa.getFinish().getLongitude() == favoriteRoute.getFinish().getLongitude() ||
-                                fa.getStart().latitude == favoriteRoute.getStart().latitude ||
-                                fa.getStart().longitude == favoriteRoute.getStart().longitude) {
-                            crash = true;
+                        /**
+                         * Read previous favorite routes
+                         * */
+                        offlineData = settings.getString(Constants.getFavorite(), "");
+                        Favorite[] f = gson.fromJson(offlineData, Favorite[].class);
+                        ArrayList<Favorite> savedFavorite;
+                        if (f == null) {
+                            //First favorite route
+                            savedFavorite = new ArrayList<Favorite>();
+                            savedFavorite.add(favoriteRoute);
+                            offlineData = gson.toJson(savedFavorite);
+                            settings.edit().putString(Constants.getFavorite(), offlineData).commit();
+                            Toast.makeText(MapsActivity.this, "Rota favorita cadastrada com sucesso", Toast.LENGTH_SHORT).show();
+                        } else {
+                            boolean crash = false;
+                            savedFavorite = new ArrayList<>(Arrays.asList(f));
+                            for (Favorite fa : savedFavorite) {
+                                if (fa.getFinish().getLatitude() == favoriteRoute.getFinish().getLatitude() ||
+                                        fa.getFinish().getLongitude() == favoriteRoute.getFinish().getLongitude() ||
+                                        fa.getStart().latitude == favoriteRoute.getStart().latitude ||
+                                        fa.getStart().longitude == favoriteRoute.getStart().longitude) {
+                                    crash = true;
+                                }
+                            }
+                            if (!crash) {
+                                savedFavorite.add(favoriteRoute);
+                                offlineData = gson.toJson(savedFavorite);
+                                settings.edit().putString(Constants.getFavorite(), offlineData).commit();
+                                Toast.makeText(MapsActivity.this, "Rota favorita cadastrada com sucesso", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MapsActivity.this, "Rota já foi cadastrada como favorita", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
-                    if (!crash) {
-                        savedFavorite.add(favoriteRoute);
-                        offlineData = gson.toJson(savedFavorite);
-                        settings.edit().putString(Constants.getFavorite(), offlineData).commit();
-                        Toast.makeText(MapsActivity.this, "Rota favorita cadastrada com sucesso", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MapsActivity.this, "Rota já foi cadastrada como favorita", Toast.LENGTH_SHORT).show();
+                });
+
+                alertDialogBuilder.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MapsActivity.this, "Cancelado", Toast.LENGTH_SHORT).show();
+                        dialog.cancel();
                     }
-                }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }
         });
 
