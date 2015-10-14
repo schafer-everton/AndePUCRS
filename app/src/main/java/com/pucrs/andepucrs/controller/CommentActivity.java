@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
     private TextView fromTextView;
     private TextView toTextView;
     private ImageButton btnSpeak;
+    private ProgressBar commentProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
         sendComment = (Button) findViewById(R.id.sendCommentButton);
         fromTextView = (TextView) findViewById(R.id.fromTextView);
         toTextView = (TextView) findViewById(R.id.toTextView);
-
+        commentProgressBar = (ProgressBar) findViewById(R.id.commentProgressBar);
         btnSpeak = (ImageButton) findViewById(R.id.speakCommentButton);
         btnSpeak.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,9 +70,8 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
         np.setMinValue(0);
         np.setWrapSelectorWheel(false);
         np.setOnValueChangedListener(this);
-
         np.setOrientation(LinearLayout.HORIZONTAL);
-
+        commentProgressBar.setVisibility(View.INVISIBLE);
         final int userID = settings.getInt(Constants.getUserId(), 0);
         final Boolean isLoggedIn = settings.getBoolean(Constants.getSession(), false);
 
@@ -102,17 +103,20 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
                         commentEditText.requestFocus();
                         Toast.makeText(CommentActivity.this, "Informe os dados de comentário", Toast.LENGTH_SHORT).show();
                     } else {
+                        commentProgressBar.setVisibility(View.VISIBLE);
                         webService.sendComment(new Comentario(myCurrentLocation.latitude, myCurrentLocation.longitude, e.getLatitude(), e.getLongitude(), commentEditText.getText().toString(), numberSelected, user), new Callback<Comentario>() {
                             @Override
                             public void success(Comentario comentario, Response response) {
                                 Intent i = new Intent(CommentActivity.this, MapsActivity.class);
                                 startActivity(i);
                                 Toast.makeText(CommentActivity.this, "Comentário Enviado com sucesso!", Toast.LENGTH_SHORT).show();
+                                commentProgressBar.setVisibility(View.INVISIBLE);
                             }
 
                             @Override
                             public void failure(RetrofitError error) {
                                 Toast.makeText(CommentActivity.this, "Falha ao enviar o comentário, por favor, verifique a sua conexão", Toast.LENGTH_SHORT).show();
+                                commentProgressBar.setVisibility(View.INVISIBLE);
                             }
                         });
                     }

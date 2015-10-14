@@ -26,8 +26,8 @@ import retrofit.client.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    SharedPreferences settings;
-    ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
+    private SharedPreferences settings;
+    private ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
     private EditText password;
     private EditText email;
     private Button login;

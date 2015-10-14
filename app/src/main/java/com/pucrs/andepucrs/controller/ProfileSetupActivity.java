@@ -36,11 +36,11 @@ import retrofit.client.Response;
 
 public class ProfileSetupActivity extends AppCompatActivity {
 
-    TextView profileTextView;
-    Button saveProfile;
-    SharedPreferences settings;
-    MyCustomAdapter dataAdapter = null;
-    ProgressBar pbar;
+    private TextView profileTextView;
+    private Button saveProfile;
+    private SharedPreferences settings;
+    private MyCustomAdapter dataAdapter = null;
+    private ProgressBar pbar;
     private AndePUCRSApplication app;
 
     @Override
@@ -180,7 +180,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
         }
         if (id == R.id.action_maps) {
             i = new Intent(ProfileSetupActivity.this, MapsActivity.class);
-            i.putExtra("FromMenu",true);
+            i.putExtra("FromMenu", true);
             startActivity(i);
         }
         if (id == R.id.action_profile) {

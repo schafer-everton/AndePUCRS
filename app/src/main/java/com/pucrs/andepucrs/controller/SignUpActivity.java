@@ -27,8 +27,8 @@ import retrofit.client.Response;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    ProgressBar pbar;
-    SharedPreferences settings;
+    private ProgressBar pbar;
+    private SharedPreferences settings;
     private Button signInButton;
     private EditText passwordEditText;
     private EditText passwordVerifyEditText;
@@ -176,7 +176,10 @@ public class SignUpActivity extends AppCompatActivity {
         if (email.length() >= 5 && email.contains("@")) return true;
         return false;
     }
-
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
     /*
 
      @Override public boolean onCreateOptionsMenu(Menu menu) {

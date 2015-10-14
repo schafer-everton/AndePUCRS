@@ -30,7 +30,7 @@ public class FavoriteDetailsActivity extends AppCompatActivity {
     private TextView toTextView;
     private TextView fromTextView;
     private Button reDoRoute;
-    MyCustomAdapter dataAdapter = null;
+    private MyCustomAdapter dataAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class FavoriteDetailsActivity extends AppCompatActivity {
         final Favorite favorite = gson.fromJson(offline, Favorite.class);
         displayListView(favorite.getPreferencias());
         toTextView.setText("Para: " + favorite.getFinish().getNome());
-        fromTextView.setText("De: "+favorite.getStart().toString());
+        fromTextView.setText("De: " + favorite.getStart().toString());
 
         reDoRoute.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +62,6 @@ public class FavoriteDetailsActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     private void displayListView(ArrayList<Preferencias> preferenciasList) {

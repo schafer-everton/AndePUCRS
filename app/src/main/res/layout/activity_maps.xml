@@ -14,7 +14,7 @@
 
     <Button
         android:id="@+id/favoriteButton"
-        android:layout_width="50dp"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_gravity="left|bottom"
         android:background="@null"
@@ -22,7 +22,7 @@
 
     <Button
         android:id="@+id/commentButton"
-        android:layout_width="50dp"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
         android:background="@null"
@@ -30,7 +30,7 @@
 
     <Button
         android:id="@+id/turnbyturnButton"
-        android:layout_width="50dp"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
         android:background="@null"
@@ -38,7 +38,7 @@
 
     <Button
         android:id="@+id/markerButton"
-        android:layout_width="50dp"
+        android:layout_width="20dp"
         android:layout_height="wrap_content"
         android:background="@null"
         android:drawableLeft="@drawable/google_marker_small"

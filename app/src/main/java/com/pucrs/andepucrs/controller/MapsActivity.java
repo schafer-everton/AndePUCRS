@@ -51,8 +51,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             -51.1733438);
     private static final LatLng waypoints = new LatLng(-30.0599683, -51.1714104);
     private static final LatLng end = new LatLng(-30.061237, -51.172944);
-    SharedPreferences settings;
-    MarkerOptions current;
+    private SharedPreferences settings;
+    private MarkerOptions current;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -81,25 +81,25 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
          * */
 
         Intent intent = getIntent();
-        boolean fromMenu = intent.getBooleanExtra("FromMenu",false);
+        boolean fromMenu = intent.getBooleanExtra("FromMenu", false);
         Gson gson = new Gson();
         String offlineData = settings.getString(Constants.getSerachPoint(), "");
         searchPoint = gson.fromJson(offlineData, Estabelecimentos.class);
-        if(fromMenu){
+        if (fromMenu) {
             //if no search, send to library
             hadSearch = false;
             favoriteButton.setEnabled(false);
             commentButton.setEnabled(false);
             turnByTurnButton.setEnabled(false);
             search = new LatLng(-30.058710, -51.173776);
-        }else{
-            if(searchPoint != null) {
+        } else {
+            if (searchPoint != null) {
                 search = new LatLng(searchPoint.getLatitude(), searchPoint.getLongitude());
                 favoriteButton.setEnabled(true);
                 commentButton.setEnabled(true);
                 turnByTurnButton.setEnabled(true);
                 hadSearch = true;
-            }else{
+            } else {
                 //if no search, send to library
                 hadSearch = false;
                 favoriteButton.setEnabled(false);
@@ -120,7 +120,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         onMapReady(mMap);
 
 
-        //createAllPointsMarkers();
+        createAllPointsMarkers();
 
         markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -271,18 +271,22 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         Ponto[] p = gson.fromJson(offlineData, Ponto[].class);
         ArrayList<Ponto> list = new ArrayList<>(Arrays.asList(p));
         for (Ponto point : list) {
-            LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
-            MarkerOptions newMarker = new MarkerOptions()
-                    .position(latLng)
-                    .draggable(true)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.current_icon))
-                    .title("Lat: " + latLng.latitude + " \nLong:" + latLng.longitude);
-            Log.i("Marker Points", newMarker.getPosition().toString());
-            mMap.addMarker(newMarker);
+            if (point.getNroIntPref() != null) {
+                if (point.getNroIntPref().isSelected()) {
+                    LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+                    MarkerOptions newMarker = new MarkerOptions()
+                            .position(latLng)
+                            .draggable(true)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.current_icon))
+                            .title("Lat: " + latLng.latitude + " \nLong:" + latLng.longitude);
+                    Log.i("Marker Points", newMarker.getPosition().toString());
+                    mMap.addMarker(newMarker);
+                }
+
+            }
         }
 
     }
-
 
     public void onMapReady(GoogleMap map) {
 
@@ -363,12 +367,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             location.setLatitude(-30.059794);
             location.setLongitude(-51.1733438);
         }
-        if(firstTime){
+        if (firstTime) {
             myfirstLocation = location;
             firstTime = false;
         }
 
-        if(hadSearch){
+        if (hadSearch) {
             Routing routing = new Routing.Builder()
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
@@ -443,8 +447,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onRoutingSuccess(PolylineOptions polylineOptions, Route route) {
-        mMap.clear();
-        if(hadSearch){
+
+        if (hadSearch) {
             PolylineOptions polyoptions = new PolylineOptions();
             polyoptions.color(Color.BLUE);
             polyoptions.width(10);
@@ -452,17 +456,18 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             mMap.addPolyline(polyoptions);
             List<Segment> s = route.getSegments();
             ArrayList<String> turn = new ArrayList();
+            turn.add("Duração:" + route.getDurationText() + ", metros: " + route.getDistanceText());
             for (Segment segment : s) {
-                turn.add(segment.getInstruction());
+                turn.add("Em " + segment.getDistance() + " metros " + segment.getInstruction());
             }
             Gson gson = new Gson();
             String offline = gson.toJson(turn);
-            settings.edit().putString(Constants.getTurnByTurn(),offline).commit();
+            settings.edit().putString(Constants.getTurnByTurn(), offline).commit();
         }
     }
 
     @Override
     public void onRoutingCancelled() {
-
+        mMap.clear();
     }
 }

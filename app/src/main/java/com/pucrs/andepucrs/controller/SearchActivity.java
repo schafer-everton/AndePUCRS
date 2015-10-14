@@ -3,6 +3,7 @@ package com.pucrs.andepucrs.controller;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
@@ -25,10 +26,17 @@ import com.pucrs.andepucrs.AndePUCRSApplication;
 import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
+import com.pucrs.andepucrs.heuristic.AStarHeuristic;
+import com.pucrs.andepucrs.heuristic.DiagonalHeuristic;
 import com.pucrs.andepucrs.model.Estabelecimentos;
+import com.pucrs.andepucrs.model.Map;
 import com.pucrs.andepucrs.model.Ponto;
+import com.pucrs.andepucrs.model.Preferencias;
+import com.pucrs.andepucrs.pathFinder.AStar;
+import com.pucrs.andepucrs.pathFinder.AreaMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -54,6 +62,8 @@ public class SearchActivity extends AppCompatActivity {
     private ArrayList<Estabelecimentos> allEstabilishments;
     private ArrayList<Ponto> allPoints;
     private ImageButton btnSpeak;
+    private ArrayList<Map> map;
+    private int obstacleMap[][];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +77,8 @@ public class SearchActivity extends AppCompatActivity {
         searchProgressBar.setVisibility(View.INVISIBLE);
         btnSpeak = (ImageButton) findViewById(R.id.speakSearchButton);
         allPoints = new ArrayList<>();
-
+        map = new ArrayList<>();
+        obstacleMap = new int[Constants.getxMapSize()][Constants.getyMapSize()];
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -77,6 +88,8 @@ public class SearchActivity extends AppCompatActivity {
                 String searchPoint = gson.toJson(e);
                 settings.edit().putString(Constants.getSerachPoint(), searchPoint).commit();
                 Toast.makeText(SearchActivity.this, resultListView, Toast.LENGTH_SHORT).show();
+                loadMap();
+
                 loadAllPoints();
 
             }
@@ -96,6 +109,34 @@ public class SearchActivity extends AppCompatActivity {
                 doSearch();
             }
         });
+    }
+
+    public void createMatrix() {
+        int countPoint = 0;
+        for (int i = 0; i < Constants.getxMapSize(); i++) {
+            for (int j = 0; j < Constants.getyMapSize(); j++) {
+                obstacleMap[i][j] = 1;
+            }
+        }
+        for (Map m : map) {
+            obstacleMap[m.getX()][m.getY()] = 0;
+            countPoint++;
+        }
+
+        int mapWith = 810;
+        int mapHeight = 712;
+        int[][] obstacleMapA = this.obstacleMap;
+
+        int startX = 665;
+        int startY = 223;
+        int goalX = 70;
+        int goalY = 522;
+
+        AreaMap map = new AreaMap(mapWith, mapHeight, obstacleMapA);
+        AStarHeuristic heuristic = new DiagonalHeuristic();
+        AStar aStar = new AStar(map, heuristic);
+        ArrayList<Point> shortestPath = aStar.calcShortestPath(startX, startY, goalX, goalY);
+        Toast.makeText(SearchActivity.this, "MAP TOTAL FREE POINTS: " + shortestPath.size(), Toast.LENGTH_SHORT).show();
     }
 
     public void doSearch() {
@@ -136,6 +177,93 @@ public class SearchActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void loadMap() {
+        app = (AndePUCRSApplication) getApplication();
+        final AndePUCRSAPI webService = app.getService();
+        webService.getMapFromTo(0, 1000, new Callback<ArrayList<Map>>() {
+            @Override
+            public void success(ArrayList<Map> maps, Response response) {
+                map.addAll(maps);
+                webService.getMapFromTo(1001, 2000, new Callback<ArrayList<Map>>() {
+                    @Override
+                    public void success(ArrayList<Map> maps, Response response) {
+                        map.addAll(maps);
+                        webService.getMapFromTo(2001, 3000, new Callback<ArrayList<Map>>() {
+                            @Override
+                            public void success(ArrayList<Map> maps, Response response) {
+                                map.addAll(maps);
+                                webService.getMapFromTo(3001, 4000, new Callback<ArrayList<Map>>() {
+                                    @Override
+                                    public void success(ArrayList<Map> maps, Response response) {
+                                        map.addAll(maps);
+
+                                        webService.getMapFromTo(4001, 5000, new Callback<ArrayList<Map>>() {
+                                            @Override
+                                            public void success(ArrayList<Map> maps, Response response) {
+                                                map.addAll(maps);
+                                                webService.getMapFromTo(5001, 6000, new Callback<ArrayList<Map>>() {
+                                                    @Override
+                                                    public void success(ArrayList<Map> maps, Response response) {
+                                                        map.addAll(maps);
+
+                                                        webService.getMapFromTo(6001, 7000, new Callback<ArrayList<Map>>() {
+                                                            @Override
+                                                            public void success(ArrayList<Map> maps, Response response) {
+                                                                map.addAll(maps);
+                                                                Toast.makeText(SearchActivity.this, "Size of map" + map.size(), Toast.LENGTH_SHORT).show();
+                                                                createMatrix();
+                                                            }
+
+                                                            @Override
+                                                            public void failure(RetrofitError error) {
+
+                                                            }
+                                                        });
+                                                    }
+
+                                                    @Override
+                                                    public void failure(RetrofitError error) {
+
+                                                    }
+                                                });
+                                            }
+
+                                            @Override
+                                            public void failure(RetrofitError error) {
+
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void failure(RetrofitError error) {
+
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Toast.makeText(SearchActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("GET", error.getMessage());
+            }
+        });
     }
 
 
@@ -181,16 +309,38 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
+
     private void loadAllPoints() {
         app = (AndePUCRSApplication) getApplication();
         AndePUCRSAPI webService = app.getService();
+
+        Gson gson = new Gson();
+        String offlineData = settings.getString(Constants.getUserDataPreference(), "");
+        Preferencias[] pref = gson.fromJson(offlineData, Preferencias[].class);
+        final ArrayList<Preferencias> allpreferences;
+        if (pref == null) {
+            allpreferences = new ArrayList();
+        } else
+            allpreferences = new ArrayList<>(Arrays.asList(pref));
+
         webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
             @Override
             public void success(ArrayList<Ponto> pontos, Response response) {
                 allPoints = pontos;
+                for (Ponto p : allPoints) {
+                    for (Preferencias preferencias : allpreferences) {
+                        if (p.getNroIntPref() != null) {
+                            if (p.getNroIntPref().getNome().equalsIgnoreCase(preferencias.getNome())) {
+                                p.getNroIntPref().setSelected(preferencias.isSelected());
+                            }
+                        }
+                    }
+                }
+
                 for (Estabelecimentos e : allEstabilishments) {
                     allPoints.add(new Ponto(e.getLatitude(), e.getLongitude()));
                 }
+
                 Log.d("pontos", allPoints.toString());
 
                 /**

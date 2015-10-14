@@ -3,10 +3,13 @@ package com.pucrs.andepucrs.controller;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -16,11 +19,14 @@ import com.pucrs.andepucrs.api.Constants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class TurnByTurnActivity extends AppCompatActivity {
 
     private ListView listView;
     private SharedPreferences settings;
+    private ImageButton ttsButton;
+    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +40,34 @@ public class TurnByTurnActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String offlineData = settings.getString(Constants.getTurnByTurn(), "");
         String[] r = gson.fromJson(offlineData, String[].class);
-        ArrayList result = new ArrayList<>(Arrays.asList(r));
+        final ArrayList result = new ArrayList<>(Arrays.asList(r));
         createList(result);
+
+        ttsButton=(ImageButton)findViewById(R.id.ttsButton);
+        tts=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.getDefault());
+                }
+            }
+        });
+
+        ttsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String toSpeak = result.toString();
+                tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+            }
+        });
+
+    }
+    public void onPause(){
+        if(tts !=null){
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onPause();
     }
 
     private void createList(ArrayList<String> pref) {

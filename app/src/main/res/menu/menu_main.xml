@@ -24,10 +24,4 @@
         android:orderInCategory="100"
         android:title="@string/title_activity_favorite"
         app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
 </menu>

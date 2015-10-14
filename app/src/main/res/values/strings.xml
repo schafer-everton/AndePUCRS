@@ -5,9 +5,9 @@
     <string name="email_textview">Email</string>
     <string name="password_textview">Senha</string>
     <string name="passwordverify_textview">Cofrimar Senha</string>
-    <string name="signIn_button">Entrar</string>
+    <string name="signIn_button">Salvar</string>
     <string name="title_activity_profile_setup">Perfil do Usuário</string>
-    <string name="title_activity_list_view_checkboxes">Profile</string>
+    <string name="title_activity_list_view_checkboxes">Perfil do Usuário</string>
     <string name="user_profile">Perfil do Usuário</string>
     <string name="save">Salvar</string>
     <string name="title_activity_main">Home</string>
@@ -15,31 +15,29 @@
     <string name="search">Pesquise</string>
     <string name="drawer_open">Slider Menu Opened</string>
     <string name="drawer_close">Slider Menu Closed</string>
-    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_login">Login</string>
     <string name="login">Login</string>
     <string name="preferencias_selecionadas">As seguintes preferências foram selecionadas</string>
     <string name="dados_cadastro">Informe os dados de cadastro corretamente</string>
     <string name="title_activity_maps">Mapa</string>
     <string name="marker">Marker</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_critical_point">Obstáculos</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="selecione_obstaculo">Selecione o obstáculo</string>
     <string name="send">Enviar</string>
     <string name="comment">Comentário</string>
-    <string name="title_activity_maps_activity_test_driver">Map</string>
-    <string name="title_activity_path_google_map">Map</string>
-    <string name="title_activity_maps_activity_teste">Map</string>
-    <string name="title_activity_search_activity_with_list">SearchActivityWithList</string>
+    <string name="title_activity_maps_activity_test_driver">Mapa</string>
+    <string name="title_activity_path_google_map">Mapa</string>
+    <string name="title_activity_maps_activity_teste">Mapa</string>
     <string name="title_activity_favorite">Rotas Favoritas</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
-    <string name="title_activity_comment">CommentActivity</string>
-    <string name="title_activity_favorite_details">FavoriteDetailsActivity</string>
-    <string name="title_activity_turn_by_turn">TurnByTurnActivity</string>
+    <string name="title_activity_comment">Comentário</string>
+    <string name="title_activity_favorite_details">Detalhes da rota favorita</string>
+    <string name="title_activity_turn_by_turn">Navegação Estática</string>
 
     <string name="speech_prompt">Diga o seu local</string>
     <string name="speech_not_supported">Desculpe, o seu dispositivo não suporta Speak to Text</string>

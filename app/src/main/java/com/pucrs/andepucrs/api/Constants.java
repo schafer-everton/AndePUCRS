@@ -1,7 +1,7 @@
 package com.pucrs.andepucrs.api;
 
 public class Constants {
-    private static final String serverURL = "http://192.168.25.3:8080";
+    private static final String serverURL = "http://192.168.25.6:8080";
     private static final String myPreferenceFile = "MyPrefsFile";
     private static final String firstTime = "myFirstTime";
     private static final String userId = "userID";
@@ -20,8 +20,18 @@ public class Constants {
     private static final String user = "user";
     private static final String turnByTurn = "turnByTurn";
     private static final String favoriteDetails = "favoriteDetails";
+    private static final int xMapSize = 810;
+    private static final int yMapSize = 712;
 
     public Constants() {
+    }
+
+    public static int getxMapSize() {
+        return xMapSize;
+    }
+
+    public static int getyMapSize() {
+        return yMapSize;
     }
 
     public static String getFavoriteDetails() {

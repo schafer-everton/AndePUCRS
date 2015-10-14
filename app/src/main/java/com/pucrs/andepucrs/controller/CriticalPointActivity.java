@@ -44,7 +44,7 @@ import retrofit.client.Response;
 
 public class CriticalPointActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private static final String TAG = Constants.getAppName();
-    SharedPreferences settings;
+    private SharedPreferences settings;
     private Spinner preferencesSpinner;
     private TextView errorTextView;
     private TextView latitudeTextView;
@@ -166,9 +166,9 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                             webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
                                                 @Override
                                                 public void success(PontoUsuario pontoUsuario, Response response) {
-                                                    Toast.makeText(CriticalPointActivity.this, "Ponto Usuário cadastrado com sucesso!", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(CriticalPointActivity.this, "Ponto Crítico cadastrado com sucesso!", Toast.LENGTH_LONG).show();
                                                     Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                    i.putExtra("FromMenu",true);
+                                                    i.putExtra("FromMenu",false);
                                                     startActivity(i);
                                                     pbar.setVisibility(View.INVISIBLE);
                                                 }
@@ -192,7 +192,6 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                             webService.createPoint(p, new Callback<Ponto>() {
                                                 @Override
                                                 public void success(Ponto ponto, Response response) {
-                                                    Toast.makeText(CriticalPointActivity.this, "Ponto cadastrado com sucesso!", Toast.LENGTH_LONG).show();
                                                     webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
                                                         @Override
                                                         public void success(ArrayList<Ponto> pontos, Response response) {
@@ -205,9 +204,9 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                                                     webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
                                                                         @Override
                                                                         public void success(PontoUsuario pontoUsuario, Response response) {
-                                                                            Toast.makeText(CriticalPointActivity.this, "Ponto do U cadastrado com sucesso!", Toast.LENGTH_LONG).show();
+                                                                            Toast.makeText(CriticalPointActivity.this, "Ponto Crítico cadastrado com sucesso!", Toast.LENGTH_LONG).show();
                                                                             Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                                            i.putExtra("FromMenu",true);
+                                                                            i.putExtra("FromMenu",false);
                                                                             startActivity(i);
                                                                             pbar.setVisibility(View.INVISIBLE);
                                                                         }
