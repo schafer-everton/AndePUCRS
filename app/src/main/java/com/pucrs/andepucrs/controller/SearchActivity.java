@@ -63,7 +63,19 @@ public class SearchActivity extends AppCompatActivity {
     private ArrayList<Ponto> allPoints;
     private ImageButton btnSpeak;
     private ArrayList<Map> map;
+    private ArrayList<Map> mapToPrint;
     private int obstacleMap[][];
+
+    public static double measure(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6378.137;
+        double dLat = (lat2 - lat1) * Math.PI / 180;
+        double dLon = (lon2 - lon1) * Math.PI / 180;
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180)
+                * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double d = R * c;
+        return d * 1000;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +90,12 @@ public class SearchActivity extends AppCompatActivity {
         btnSpeak = (ImageButton) findViewById(R.id.speakSearchButton);
         allPoints = new ArrayList<>();
         map = new ArrayList<>();
+        mapToPrint = new ArrayList<>();
         obstacleMap = new int[Constants.getxMapSize()][Constants.getyMapSize()];
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                searchProgressBar.setVisibility(View.VISIBLE);
                 resultListView = parent.getItemAtPosition(position).toString();
                 Gson gson = new Gson();
                 Estabelecimentos e = searchEstabishmentBaseOnName(result, resultListView);
@@ -90,7 +104,6 @@ public class SearchActivity extends AppCompatActivity {
                 Toast.makeText(SearchActivity.this, resultListView, Toast.LENGTH_SHORT).show();
                 loadMap();
 
-                loadAllPoints();
 
             }
         });
@@ -112,31 +125,130 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void createMatrix() {
-        int countPoint = 0;
-        for (int i = 0; i < Constants.getxMapSize(); i++) {
-            for (int j = 0; j < Constants.getyMapSize(); j++) {
-                obstacleMap[i][j] = 1;
+        Log.d("Andepucrs","ENTER CREATE MATRIX");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("Andepucrs","STARTED RUN");
+                int countPoint = 0;
+                for (int i = 0; i < Constants.getxMapSize(); i++) {
+                    for (int j = 0; j < Constants.getyMapSize(); j++) {
+                        obstacleMap[i][j] = 1;
+                    }
+                }
+                //create map points
+                for (Map m : map) {
+                    obstacleMap[m.getX()][m.getY()] = 0;
+                    countPoint++;
+                }
+
+                app = (AndePUCRSApplication) getApplication();
+                AndePUCRSAPI webService = app.getService();
+                Gson gson = new Gson();
+                String offlineData = settings.getString(Constants.getUserDataPreference(), "");
+                Preferencias[] pref = gson.fromJson(offlineData, Preferencias[].class);
+                final ArrayList<Preferencias> allpreferences;
+                if (pref == null) {
+                    allpreferences = new ArrayList();
+                } else
+                    allpreferences = new ArrayList<>(Arrays.asList(pref));
+
+                webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
+                    @Override
+                    public void success(ArrayList<Ponto> pontos, Response response) {
+                        allPoints = pontos;
+                        for (Ponto p : allPoints) {
+                            for (Preferencias preferencias : allpreferences) {
+                                if (p.getNroIntPref() != null) {
+                                    if (p.getNroIntPref().getNome().equalsIgnoreCase(preferencias.getNome())) {
+                                        p.getNroIntPref().setSelected(preferencias.isSelected());
+                                    }
+                                }
+                            }
+                        }
+
+                        for (Ponto p : allPoints) {
+                            if (p.getNroIntPref() != null && p.getNroIntPref().isSelected()) {
+                                Log.d("DEBUG","Ponto: "+p.getNroIntPref().getNome());
+                                double lat = p.getLatitude();
+                                double lng = p.getLongitude();
+                                double a, b, pa, hx, hy, cTop, cBot;
+                                cTop = 810;
+                                cBot = 712;
+
+                                a = measure(-30.055759900000005, -51.1774278, lat, lng);
+                                b = measure(-30.055704100000003, -51.1690164, lat, lng);
+
+                                // calculate y
+                                pa = (a + b + cTop) / 2;
+                                hy = (2 / cTop) * (Math.sqrt((pa * (pa - a) * (pa - b) * (pa - cTop))));
+                                // Calculate x
+                                b = measure(-30.0621486, -51.177588699999994, lat, lng);
+                                pa = (a + b + cBot) / 2;
+                                hx = (2 / cBot) * (Math.sqrt((pa * (pa - a) * (pa - b) * (pa - cBot))));
+
+                                int around = 50;
+
+                                for (int i = (int) hy - around; i<hy + around; i++){
+                                    for(int j= (int) hx - around; j<hx+around; j++){
+                                        obstacleMap[i][j] = 1;
+                                    }
+                                }
+                                obstacleMap[(int) hy][(int) hx] = 1;
+                                Log.d("DEBUG","AROUND END");
+                            }
+                        }
+
+                        int mapWith = 810;
+                        int mapHeight = 712;
+                        int startX = 665;
+                        int startY = 223;
+                        int goalX = 70;
+                        int goalY = 522;
+
+                        AreaMap mapResult = new AreaMap(mapWith, mapHeight, obstacleMap);
+                        AStarHeuristic heuristic = new DiagonalHeuristic();
+                        AStar aStar = new AStar(mapResult, heuristic);
+                        ArrayList<Point> shortestPath = aStar.calcShortestPath(startX, startY, goalX, goalY);
+                        if(shortestPath != null){
+                            for (Point p : shortestPath) {
+                                for (Map m : map) {
+
+                                    if (m.getX() == p.y && m.getY() == p.x) {
+                                        mapToPrint.add(m);
+                                    }
+                                }
+                                Log.d("SHOTR",""+p.toString());
+                            }
+
+                            Collections.sort(mapToPrint, new Comparator<Map>() {
+                                @Override
+                                public int compare(Map lhs, Map rhs) {
+                                    if (lhs.getX() > rhs.getX())
+                                        return 1;
+                                    else
+                                        return 0;
+                                }
+                            });
+                        }
+                        else{
+                            mapToPrint = null;
+                        }
+                        Gson gson = new Gson();
+                        String offlineData = gson.toJson(mapToPrint);
+                        settings.edit().putString(Constants.getResultAStar(), offlineData).commit();
+                        searchProgressBar.setVisibility(View.INVISIBLE);
+                        loadAllPoints();
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
+                    }
+                });
+
             }
-        }
-        for (Map m : map) {
-            obstacleMap[m.getX()][m.getY()] = 0;
-            countPoint++;
-        }
-
-        int mapWith = 810;
-        int mapHeight = 712;
-        int[][] obstacleMapA = this.obstacleMap;
-
-        int startX = 665;
-        int startY = 223;
-        int goalX = 70;
-        int goalY = 522;
-
-        AreaMap map = new AreaMap(mapWith, mapHeight, obstacleMapA);
-        AStarHeuristic heuristic = new DiagonalHeuristic();
-        AStar aStar = new AStar(map, heuristic);
-        ArrayList<Point> shortestPath = aStar.calcShortestPath(startX, startY, goalX, goalY);
-        Toast.makeText(SearchActivity.this, "MAP TOTAL FREE POINTS: " + shortestPath.size(), Toast.LENGTH_SHORT).show();
+        }).start();
     }
 
     public void doSearch() {
@@ -159,7 +271,6 @@ public class SearchActivity extends AppCompatActivity {
                     result = searchEstabishment(establishments, searchEditText.getText().toString());
                     createList(result);
                     searchProgressBar.setVisibility(View.INVISIBLE);
-
                     /**
                      * Save data offline
                      * */
@@ -212,41 +323,40 @@ public class SearchActivity extends AppCompatActivity {
                                                             @Override
                                                             public void success(ArrayList<Map> maps, Response response) {
                                                                 map.addAll(maps);
-                                                                Toast.makeText(SearchActivity.this, "Size of map" + map.size(), Toast.LENGTH_SHORT).show();
                                                                 createMatrix();
                                                             }
 
                                                             @Override
                                                             public void failure(RetrofitError error) {
-
+                                                                searchProgressBar.setVisibility(View.INVISIBLE);
                                                             }
                                                         });
                                                     }
 
                                                     @Override
                                                     public void failure(RetrofitError error) {
-
+                                                        searchProgressBar.setVisibility(View.INVISIBLE);
                                                     }
                                                 });
                                             }
 
                                             @Override
                                             public void failure(RetrofitError error) {
-
+                                                searchProgressBar.setVisibility(View.INVISIBLE);
                                             }
                                         });
                                     }
 
                                     @Override
                                     public void failure(RetrofitError error) {
-
+                                        searchProgressBar.setVisibility(View.INVISIBLE);
                                     }
                                 });
                             }
 
                             @Override
                             public void failure(RetrofitError error) {
-
+                                searchProgressBar.setVisibility(View.INVISIBLE);
                             }
                         });
                     }
@@ -266,7 +376,6 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-
     /**
      * Showing google speech input dialog
      */
@@ -285,7 +394,6 @@ public class SearchActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         }
     }
-
 
     /**
      * Receiving speech input
@@ -309,58 +417,18 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-
     private void loadAllPoints() {
-        app = (AndePUCRSApplication) getApplication();
-        AndePUCRSAPI webService = app.getService();
-
+        /**
+         * Save data offline
+         * */
         Gson gson = new Gson();
-        String offlineData = settings.getString(Constants.getUserDataPreference(), "");
-        Preferencias[] pref = gson.fromJson(offlineData, Preferencias[].class);
-        final ArrayList<Preferencias> allpreferences;
-        if (pref == null) {
-            allpreferences = new ArrayList();
-        } else
-            allpreferences = new ArrayList<>(Arrays.asList(pref));
-
-        webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
-            @Override
-            public void success(ArrayList<Ponto> pontos, Response response) {
-                allPoints = pontos;
-                for (Ponto p : allPoints) {
-                    for (Preferencias preferencias : allpreferences) {
-                        if (p.getNroIntPref() != null) {
-                            if (p.getNroIntPref().getNome().equalsIgnoreCase(preferencias.getNome())) {
-                                p.getNroIntPref().setSelected(preferencias.isSelected());
-                            }
-                        }
-                    }
-                }
-
-                for (Estabelecimentos e : allEstabilishments) {
-                    allPoints.add(new Ponto(e.getLatitude(), e.getLongitude()));
-                }
-
-                Log.d("pontos", allPoints.toString());
-
-                /**
-                 * Save data offline
-                 * */
-                Gson gson = new Gson();
-                String offlineData = gson.toJson(allPoints);
-                settings.edit().putString(Constants.getAllPoints(), offlineData).commit();
-                Intent i = new Intent(SearchActivity.this, MapsActivity.class);
-                i.putExtra("FromMenu", false);
-                startActivity(i);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
+        String offlineData = gson.toJson(allPoints);
+        settings.edit().putString(Constants.getAllPoints(), offlineData).commit();
+        searchProgressBar.setVisibility(View.INVISIBLE);
+        Intent i = new Intent(SearchActivity.this, MapsActivity.class);
+        i.putExtra("FromMenu", false);
+        startActivity(i);
     }
-
 
     private Estabelecimentos searchEstabishmentBaseOnName(ArrayList<Estabelecimentos> establishments, String searchQuery) {
         Estabelecimentos resultEs = null;
@@ -443,4 +511,8 @@ public class SearchActivity extends AppCompatActivity {
         Intent i = new Intent(SearchActivity.this, HomeActivity.class);
         startActivity(i);
     }
+
 }
+
+
+

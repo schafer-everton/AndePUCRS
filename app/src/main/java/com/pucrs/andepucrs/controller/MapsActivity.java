@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.directions.route.Route;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.directions.route.Segment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -26,7 +25,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -37,12 +35,11 @@ import com.pucrs.andepucrs.R;
 import com.pucrs.andepucrs.api.Constants;
 import com.pucrs.andepucrs.model.Estabelecimentos;
 import com.pucrs.andepucrs.model.Favorite;
-import com.pucrs.andepucrs.model.Ponto;
+import com.pucrs.andepucrs.model.Map;
 import com.pucrs.andepucrs.model.Preferencias;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, RoutingListener {
@@ -120,7 +117,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         onMapReady(mMap);
 
 
-        createAllPointsMarkers();
+        traceRoute();
 
         markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,25 +262,44 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-    public void createAllPointsMarkers() {
+    public void traceRoute() {
         Gson gson = new Gson();
-        String offlineData = settings.getString(Constants.getAllPoints(), "");
-        Ponto[] p = gson.fromJson(offlineData, Ponto[].class);
-        ArrayList<Ponto> list = new ArrayList<>(Arrays.asList(p));
-        for (Ponto point : list) {
-            if (point.getNroIntPref() != null) {
-                if (point.getNroIntPref().isSelected()) {
-                    LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
-                    MarkerOptions newMarker = new MarkerOptions()
-                            .position(latLng)
-                            .draggable(true)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.current_icon))
-                            .title("Lat: " + latLng.latitude + " \nLong:" + latLng.longitude);
-                    Log.i("Marker Points", newMarker.getPosition().toString());
-                    mMap.addMarker(newMarker);
-                }
+        String offlineData = settings.getString(Constants.getResultAStar(), "");
+        Map[] p = gson.fromJson(offlineData, Map[].class);
+        if(p == null){
+            Toast.makeText(MapsActivity.this, "Não foi possível traçar uma rota para as suas preferencias, por favor, mude-as", Toast.LENGTH_SHORT).show();
 
+        }else{
+            ArrayList<Map> list = new ArrayList<>(Arrays.asList(p));
+            ArrayList<LatLng> poly = new ArrayList<>();
+            boolean add=false;
+
+            //Diminiu a quantidade de prints para 5 metros
+            for (Map point : list) {
+                add = true;
+                if(poly.isEmpty()){
+                    poly.add(new LatLng(point.getLatitude(),point.getLongitude()));
+                }else{
+                    for (LatLng pre: poly){
+                        double ponto = measure(pre.latitude, pre.longitude, point.getLatitude(), point.getLongitude());
+                        if(ponto <= 7.5){
+                            add = false;
+                        }
+                    }
+                    if(add){
+                        poly.add(new LatLng(point.getLatitude(),point.getLongitude()));
+                    }
+                }
             }
+
+            Log.d("DEBUG","New poly size"+poly.size());
+
+            PolylineOptions polyoptions = new PolylineOptions();
+            polyoptions.color(Color.BLUE);
+            polyoptions.width(10);
+            polyoptions.addAll(poly);
+
+            mMap.addPolyline(polyoptions);
         }
 
     }
@@ -397,6 +413,18 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         }
     }
 
+    public static double measure(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6378.137;
+        double dLat = (lat2 - lat1) * Math.PI / 180;
+        double dLon = (lon2 - lon1) * Math.PI / 180;
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180)
+                * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double d = R * c;
+        return d * 1000;
+    }
+
+
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(Constants.getAppName(), "Location services connected");
@@ -447,7 +475,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onRoutingSuccess(PolylineOptions polylineOptions, Route route) {
-
+/*
         if (hadSearch) {
             PolylineOptions polyoptions = new PolylineOptions();
             polyoptions.color(Color.BLUE);
@@ -463,7 +491,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             Gson gson = new Gson();
             String offline = gson.toJson(turn);
             settings.edit().putString(Constants.getTurnByTurn(), offline).commit();
-        }
+        }*/
     }
 
     @Override
