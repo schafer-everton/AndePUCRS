@@ -107,7 +107,7 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
                         webService.sendComment(new Comentario(myCurrentLocation.latitude, myCurrentLocation.longitude, e.getLatitude(), e.getLongitude(), commentEditText.getText().toString(), numberSelected, user), new Callback<Comentario>() {
                             @Override
                             public void success(Comentario comentario, Response response) {
-                                Intent i = new Intent(CommentActivity.this, MapsActivity.class);
+                                Intent i = new Intent(CommentActivity.this, SearchActivity.class);
                                 startActivity(i);
                                 Toast.makeText(CommentActivity.this, "Comentário Enviado com sucesso!", Toast.LENGTH_SHORT).show();
                                 commentProgressBar.setVisibility(View.INVISIBLE);

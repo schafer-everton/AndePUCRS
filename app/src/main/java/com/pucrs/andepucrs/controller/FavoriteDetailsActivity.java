@@ -56,8 +56,13 @@ public class FavoriteDetailsActivity extends AppCompatActivity {
                 Estabelecimentos e = favorite.getFinish();
                 String searchPoint = gson.toJson(e);
                 settings.edit().putString(Constants.getSerachPoint(), searchPoint).commit();
+
+                String offlineData = gson.toJson(favorite.getPreferencias());
+                settings.edit().putString(Constants.getUserDataPreferenceReDO(), offlineData).commit();
+
                 Intent i = new Intent(FavoriteDetailsActivity.this, MapsActivity.class);
                 i.putExtra("FromMenu", false);
+                i.putExtra("FromFavorite",true);
                 startActivity(i);
             }
         });

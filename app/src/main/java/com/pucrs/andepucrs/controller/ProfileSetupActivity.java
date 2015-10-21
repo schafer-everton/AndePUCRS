@@ -136,8 +136,6 @@ public class ProfileSetupActivity extends AppCompatActivity {
                 if (selectCount == 0) {
                     Toast.makeText(ProfileSetupActivity.this, "Por favor, selecione ao menos uma obstáculo", Toast.LENGTH_SHORT).show();
                 } else {
-
-
                     /**
                      * Save data offline
                      * */

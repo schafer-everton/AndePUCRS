@@ -56,7 +56,9 @@
 
         <activity
             android:name=".controller.MapsActivity"
-            android:label="@string/title_activity_maps" />
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".controller.CriticalPointActivity"
             android:label="@string/title_activity_critical_point" />

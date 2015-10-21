@@ -122,7 +122,13 @@ public class TurnByTurnActivity extends AppCompatActivity {
             i = new Intent(TurnByTurnActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
-
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(TurnByTurnActivity.this, MapsActivity.class);
+        i.putExtra("FromMenu",false);
+        startActivity(i);
+    }
+
 }

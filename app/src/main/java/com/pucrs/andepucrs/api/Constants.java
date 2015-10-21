@@ -7,6 +7,7 @@ public class Constants {
     private static final String userId = "userID";
     private static final String session = "session";
     private static final String userDataPreference = "userDataPreference";
+    private static final String userDataPreferenceReDO = "userDataPreferenceReDO";
     private static final String markerLatitude = "markerLatitude";
     private static final String markerLongitude = "markerLongitude";
     private static final String userData = "userData";
@@ -23,8 +24,32 @@ public class Constants {
     private static final int xMapSize = 810;
     private static final int yMapSize = 712;
     private static final String resultAStar = "resultAStar";
-
+    private static final String map = "map";
+    private static final String obstacleMap = "obstacleMap";
+    private static final String destX = "destinoX";
+    private static final String destY = "destinoY";
     public Constants() {
+    }
+
+    public static String getUserDataPreferenceReDO() {
+        return userDataPreferenceReDO;
+    }
+
+    public static String getDestY() {
+        return destY;
+    }
+
+    public static String getDestX() {
+
+        return destX;
+    }
+
+    public static String getObstacleMap() {
+        return obstacleMap;
+    }
+
+    public static String getMap() {
+        return map;
     }
 
     public static String getResultAStar() {

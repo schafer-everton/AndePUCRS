@@ -167,8 +167,8 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                                 @Override
                                                 public void success(PontoUsuario pontoUsuario, Response response) {
                                                     Toast.makeText(CriticalPointActivity.this, "Ponto Crítico cadastrado com sucesso!", Toast.LENGTH_LONG).show();
-                                                    Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                    i.putExtra("FromMenu",false);
+                                                    Intent i = new Intent(CriticalPointActivity.this, SearchActivity.class);
+                                                    //i.putExtra("FromMenu",false);
                                                     startActivity(i);
                                                     pbar.setVisibility(View.INVISIBLE);
                                                 }
@@ -205,8 +205,8 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                                                         @Override
                                                                         public void success(PontoUsuario pontoUsuario, Response response) {
                                                                             Toast.makeText(CriticalPointActivity.this, "Ponto Crítico cadastrado com sucesso!", Toast.LENGTH_LONG).show();
-                                                                            Intent i = new Intent(CriticalPointActivity.this, MapsActivity.class);
-                                                                            i.putExtra("FromMenu",false);
+                                                                            Intent i = new Intent(CriticalPointActivity.this, SearchActivity.class);
+                                                                           // i.putExtra("FromMenu",false);
                                                                             startActivity(i);
                                                                             pbar.setVisibility(View.INVISIBLE);
                                                                         }
@@ -256,7 +256,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                     }
                 });
             } catch (NumberFormatException n) {
-                Log.e(TAG, "Error to parse double: " + pointLat + "#" + pointLong);
+                Log.e(Constants.getAppName(), "Error to parse double: " + pointLat + "#" + pointLong);
             }
         }
     }
