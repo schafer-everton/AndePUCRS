@@ -7,6 +7,10 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +19,10 @@ import android.support.annotation.MainThread;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -53,7 +60,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MapsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener, RoutingListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, RoutingListener, SensorEventListener {
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final LatLng start = new LatLng(-30.059794,
             -51.1733438);
@@ -67,7 +74,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button markerButton;
     private Button favoriteButton;
     private Button commentButton;
-    private Button turnByTurnButton;
+    //private Button turnByTurnButton;
     private Button recalculateButton;
     private Location myfirstLocation;
     private LatLng search;
@@ -84,6 +91,23 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     private int startPointLocaionX;
     private int startPointLocaionY;
     private Polyline polylineFinal;
+
+
+    /**
+     * Sensor
+     */
+
+    private ImageView mPointer;
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private Sensor mMagnetometer;
+    private float[] mLastAccelerometer = new float[3];
+    private float[] mLastMagnetometer = new float[3];
+    private boolean mLastAccelerometerSet = false;
+    private boolean mLastMagnetometerSet = false;
+    private float[] mR = new float[9];
+    private float[] mOrientation = new float[3];
+    private float mCurrentDegree = 0f;
 
     public static double measure(double lat1, double lon1, double lat2, double lon2) {
         double R = 6378.137;
@@ -104,10 +128,17 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         markerButton = (Button) findViewById(R.id.markerButton);
         favoriteButton = (Button) findViewById(R.id.favoriteButton);
         commentButton = (Button) findViewById(R.id.commentButton);
-        turnByTurnButton = (Button) findViewById(R.id.turnbyturnButton);
+        //turnByTurnButton = (Button) findViewById(R.id.turnbyturnButton);
         mapProgressBar = (ProgressBar) findViewById(R.id.mapProgressBar);
         recalculateButton = (Button) findViewById(R.id.recalculateButton);
         mapProgressBar.setVisibility(View.INVISIBLE);
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mPointer = (ImageView) findViewById(R.id.pointer);
+
+
         firstTime = true;
         goalX = goalY = 0;
         mapToPrint = new ArrayList<>();
@@ -124,7 +155,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         searchPoint = gson.fromJson(offlineData, Estabelecimentos.class);
         favoriteButton.setEnabled(false);
         commentButton.setEnabled(true);
-        turnByTurnButton.setEnabled(false);
+        // turnByTurnButton.setEnabled(false);
         recalculateButton.setEnabled(false);
         if (fromMenu) {
             //if no search, send to library
@@ -277,13 +308,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         });
 
-        turnByTurnButton.setOnClickListener(new View.OnClickListener() {
+       /* turnByTurnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MapsActivity.this, TurnByTurnActivity.class);
                 startActivity(i);
             }
-        });
+        });*/
 
         recalculateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -294,7 +325,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Toast.makeText(MapsActivity.this, "Recalculando", Toast.LENGTH_SHORT).show();
-                        polylineFinal.remove();
+                        if (polylineFinal.isVisible()) {
+                            polylineFinal.remove();
+                        }
                         fromFavorite = false;
                         mapProgressBar.setVisibility(View.VISIBLE);
                         runAStar();
@@ -321,6 +354,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             public void run() {
                 Log.d(Constants.getAppName(), "Start Printing polylines on Google Map");
                 if (mapToPrint == null) {
+                    mapProgressBar.setVisibility(View.INVISIBLE);
                     Toast.makeText(MapsActivity.this, "Não foi possível traçar a rota, por favor altere suas preferencias", Toast.LENGTH_SHORT).show();
                 } else {
                     ArrayList<LatLng> poly = new ArrayList<>();
@@ -333,7 +367,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                         } else {
                             for (LatLng pre : poly) {
                                 double ponto = measure(pre.latitude, pre.longitude, point.getLatitude(), point.getLongitude());
-                                if (ponto <= 7.5) {
+                                if (ponto <= 5) {
                                     add = false;
                                 }
                             }
@@ -342,7 +376,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                             }
                         }
                     }
-                    Log.d(Constants.getAppName(), "Polilyne Total Size" + poly.size());
+                    //Log.d(Constants.getAppName(), "Polilyne Total Size" + poly.size());
                     PolylineOptions polyoptions = new PolylineOptions();
                     polyoptions.color(Color.BLUE);
                     polyoptions.width(10);
@@ -356,7 +390,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     */
                     for (Ponto obstacleToPrint : allPoints) {
                         if (obstacleToPrint.getNroIntPref() != null && obstacleToPrint.getNroIntPref().isSelected()) {
-                            Log.d(Constants.getAppName(), "Obstacle Marker " + obstacleToPrint.getNroIntPref().getNroIntPref());
+                            //      Log.d(Constants.getAppName(), "Obstacle Marker " + obstacleToPrint.getNroIntPref().getNroIntPref());
                             Marker obtacleMarker = mMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(obstacleToPrint.getLatitude(), obstacleToPrint.getLongitude()))
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.obstacle_icon))
@@ -372,7 +406,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 }
                 favoriteButton.setEnabled(true);
                 commentButton.setEnabled(true);
-                turnByTurnButton.setEnabled(true);
+                //turnByTurnButton.setEnabled(true);
                 recalculateButton.setEnabled(true);
 
             }
@@ -391,12 +425,18 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                  * Carrega destino e mapa e o mapa de obstaculos
                  * */
                 Gson gson = new Gson();
-                String offlineData = settings.getString(Constants.getDestX(), "");
-                goalX = (int) gson.fromJson(offlineData, int.class);
-                offlineData = settings.getString(Constants.getDestY(), "");
-                goalY = (int) gson.fromJson(offlineData, int.class);
+                double lat;
+                double lng;
+                double a, b, pa, hx, hy, cTop, cBot;
+                int mapWith = 810;
+                int mapHeight = 712;
+                int startX;
+                int startY;
 
-                offlineData = settings.getString(Constants.getMap(), "");
+                /**
+                 *Carrega mapa
+                 * */
+                String offlineData = settings.getString(Constants.getMap(), "");
                 Map[] aux = gson.fromJson(offlineData, Map[].class);
                 ArrayList<Map> mapAll = new ArrayList<>(Arrays.asList(aux));
                 Log.d(Constants.getAppName(), "Original Map size " + mapAll.size());
@@ -404,8 +444,67 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 offlineData = settings.getString(Constants.getObstacleMap(), "");
                 int[][] obstacleMap = gson.fromJson(offlineData, int[][].class);
 
+                /*
+                String offlineData = settings.getString(Constants.getDestX(), "");
+                goalX = (int) gson.fromJson(offlineData, int.class);
+                offlineData = settings.getString(Constants.getDestY(), "");
+                goalY = (int) gson.fromJson(offlineData, int.class);
+                */
+
+                offlineData = settings.getString(Constants.getSerachPoint(), "");
+                Estabelecimentos searchGoal = gson.fromJson(offlineData, Estabelecimentos.class);
+
                 /**
-                 * Adiciona obstaculos no mapa
+                * Ajusta ponto de destino
+                * */
+
+                lat = searchGoal.getLatitude();
+                lng = searchGoal.getLongitude();
+                cTop = 810;
+                cBot = 712;
+                a = measure(-30.055759900000005, -51.1774278, lat, lng);
+                b = measure(-30.055704100000003, -51.1690164, lat, lng);
+                // calculate x
+                pa = (a + b + cTop) / 2;
+                hy = (2 / cTop) * (Math.sqrt((pa * (pa - a) * (pa - b) * (pa - cTop))));
+                // Calculate y
+                b = measure(-30.0621486, -51.177588699999994, lat, lng);
+                pa = (a + b + cBot) / 2;
+                hx = (2 / cBot) * (Math.sqrt((pa * (pa - a) * (pa - b) * (pa - cBot))));
+                int around = 5;
+                for (int i = (int) hy - around; i < hy + around; i++) {
+                    for (int j = (int) hx - around; j < hx + around; j++) {
+                        obstacleMap[i][j] = 0;
+                    }
+                }
+
+                goalX = (int) hy;
+                goalY = (int) hx;
+
+                /**
+                 * Adiciona o usuario no mapa baseado na sua location
+                 * */
+                boolean hit = false;
+                around = 1;
+
+                /*while (!hit) {
+                    for (int i = startPointLocaionX - around; i < startPointLocaionX + around && !hit; i++) {
+                        for (int j = startPointLocaionY - around; j < startPointLocaionY + around && !hit; j++) {
+                            if (obstacleMap[i][j] == 0) {
+                                hit = true;
+                                startPointLocaionX = i;
+                                startPointLocaionY = j;
+                                Log.d("ACHOU", "ACHOU " + i + ", " + j);
+                            }
+                        }
+                    }
+                    around++;
+                }*/
+
+
+
+                /**
+                 * Carrega perfil, se pelos favoritos ou search normal
                  * */
                 if (fromFavorite) {
                     offlineData = settings.getString(Constants.getUserDataPreferenceReDO(), "");
@@ -413,6 +512,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     offlineData = settings.getString(Constants.getUserDataPreference(), "");
                 }
 
+                //garante que pref não é null
                 Preferencias[] pref = gson.fromJson(offlineData, Preferencias[].class);
                 final ArrayList<Preferencias> allpreferences;
                 if (pref == null)
@@ -420,14 +520,14 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 else
                     allpreferences = new ArrayList<>(Arrays.asList(pref));
 
+                /**
+                 * Mapea os pontos baseado na pref
+                 * */
                 offlineData = settings.getString(Constants.getAllPoints(), "");
                 Ponto[] ponto = gson.fromJson(offlineData, Ponto[].class);
                 allPoints = new ArrayList<>(Arrays.asList(ponto));
 
-                double lat;
-                double lng;
-                double a, b, pa, hx, hy, cTop, cBot;
-                //mapea pref do ponto
+
                 for (Ponto p : allPoints) {
                     for (Preferencias preferencias : allpreferences) {
                         if (p.getNroIntPref() != null) {
@@ -438,8 +538,26 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     }
                 }
 
-                //carrega todos os pontos criticos, baseado na pref;
-                for (Ponto p : allPoints) {
+                /**
+                 * ajusta mapa, adicionando mais pontos ao redor das rotas
+                 */
+                //need to improve this;
+                for (int x = 0; x < 810; x++) {
+                    for (int y = 0; y < 712; y++) {
+                        if (obstacleMap[x][y] == 0) {
+                            for (int i = x - 1; i < x + 1; i++) {
+                                for (int j = y - 1; j < y + 1; j++) {
+                                     obstacleMap[i][j] = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /**
+                 * carrega todos os pontos criticos, baseado na pref;
+                */
+                 for (Ponto p : allPoints) {
                     if (p.getNroIntPref() != null && p.getNroIntPref().isSelected()) {
                         Log.d(Constants.getAppName(), "Obstaculo " + p.getNroIntPref().getNome() + " - " + p.getLatitude() + ", " + p.getLongitude() + " - " + p.getNroIntPref().getValor());
                         lat = p.getLatitude();
@@ -455,32 +573,27 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                         b = measure(-30.0621486, -51.177588699999994, lat, lng);
                         pa = (a + b + cBot) / 2;
                         hx = (2 / cBot) * (Math.sqrt((pa * (pa - a) * (pa - b) * (pa - cBot))));
-                        int around = 20;
+                        around = 10;
                         for (int i = (int) hy - around; i < hy + around; i++) {
                             for (int j = (int) hx - around; j < hx + around; j++) {
-                                // Log.d(Constants.getAppName(), "Obstaculo( "+i+","+j+") " + p.getNroIntPref().getNome() + " - "+p.getLatitude()+", "+p.getLongitude() + " - "+p.getNroIntPref().getValor());
-                                obstacleMap[i][j] = p.getNroIntPref().getValor();
+                                obstacleMap[i][j] = 3;
                             }
                         }
-                        obstacleMap[(int) hy][(int) hx] = p.getNroIntPref().getValor();
                     }
                 }
-
                 Log.d(Constants.getAppName(), "Goal position: " + goalX + ", " + goalY);
-                int mapWith = 810;
-                int mapHeight = 712;
-                int startX = 665;
-                int startY = 223;
-                //goalX = 70;
-                //goalY = 522;
+
+
+                startX = 665;
+                startY = 223;
+                goalX = 70;
+                goalY = 522;
 /*
-                //
-                int startX = 600;
-                int startY = 392;
+                startX = 695;
+                startY = 246;
                 goalX = 421;
                 goalY = 180;
 */
-
                 AreaMap mapResult = new AreaMap(mapWith, mapHeight, obstacleMap);
                 AStarHeuristic heuristic = new DiagonalHeuristic();
                 AStar aStar = new AStar(mapResult, heuristic);
@@ -495,7 +608,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                             }
                         }
                     }
-//                    Log.d(Constants.getAppName(),shortestPath.toString());
                 } else {
                     mapToPrint = null;
                     Log.d(Constants.getAppName(), "Could not do the search");
@@ -542,6 +654,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void handleNewLocation(Location location) {
+
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
@@ -577,6 +690,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         if (location == null) {
             location.setLatitude(-30.059794);
             location.setLongitude(-51.1733438);
+
         }
         if (firstTime) {
             myfirstLocation = location;
@@ -586,9 +700,15 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             double lat;
             double lng;
             double a, b, pa, hx, hy, cTop, cBot;
-             //adiciona destino no obstacle map
+            //adiciona destino no obstacle map
             lat = myfirstLocation.getLatitude();
             lng = myfirstLocation.getLongitude();
+            Marker teste = mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat, lng))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.finish_line_flag))
+                    .title("teste"));
+
+
             cTop = 810;
             cBot = 712;
             a = measure(-30.055759900000005, -51.1774278, lat, lng);
@@ -604,7 +724,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             startPointLocaionX = (int) hy;
             startPointLocaionY = (int) hx;
 
-            Log.d(Constants.getAppName(),"My Location on map "+ startPointLocaionX+", "+startPointLocaionY);
+            Log.d(Constants.getAppName(), "My Location on map " + startPointLocaionX + ", " + startPointLocaionY);
             firstTime = false;
             if (doTrace) {
                 doTrace = false;
@@ -653,6 +773,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         super.onResume();
         setUpMapIfNeeded();
         mGoogleApiClient.connect();
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
@@ -662,6 +784,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
+        mSensorManager.unregisterListener(this, mAccelerometer);
+        mSensorManager.unregisterListener(this, mMagnetometer);
     }
 
     @Override
@@ -700,8 +824,45 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         }*/
     }
 
+
     @Override
     public void onRoutingCancelled() {
         mMap.clear();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor == mAccelerometer) {
+            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
+            mLastAccelerometerSet = true;
+        } else if (event.sensor == mMagnetometer) {
+            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+            mLastMagnetometerSet = true;
+        }
+        if (mLastAccelerometerSet && mLastMagnetometerSet) {
+            SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
+            SensorManager.getOrientation(mR, mOrientation);
+            float azimuthInRadians = mOrientation[0];
+            float azimuthInDegress = (float) (Math.toDegrees(azimuthInRadians) + 360) % 360;
+
+            RotateAnimation ra = new RotateAnimation(
+                    mCurrentDegree,
+                    -azimuthInDegress,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f);
+
+            ra.setDuration(250);
+
+            ra.setFillAfter(true);
+
+            mPointer.startAnimation(ra);
+            mCurrentDegree = -azimuthInDegress;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
