@@ -126,7 +126,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                     Gson gson = new Gson();
                                                     String offlineData = gson.toJson(u);
                                                     /**
-                                                     * Save user id
+                                                     * Save user data
                                                      * */
                                                     settings.edit().putString(Constants.getUserData(), offlineData).commit();
                                                     /**

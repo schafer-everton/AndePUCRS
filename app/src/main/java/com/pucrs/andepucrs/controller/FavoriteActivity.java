@@ -160,6 +160,10 @@ public class FavoriteActivity extends AppCompatActivity {
             i = new Intent(FavoriteActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
+        if (id == R.id.action_user) {
+            i = new Intent(FavoriteActivity.this, UserConfiguration.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }

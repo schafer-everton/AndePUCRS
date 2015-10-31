@@ -32,15 +32,17 @@
     <string name="title_activity_path_google_map">Mapa</string>
     <string name="title_activity_maps_activity_teste">Mapa</string>
     <string name="title_activity_favorite">Rotas Favoritas</string>
-
+    <string name="tittle_activity_user">Dados do Usuário</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
     <string name="title_activity_comment">Comentário</string>
     <string name="title_activity_favorite_details">Detalhes da rota favorita</string>
     <string name="title_activity_turn_by_turn">Navegação Estática</string>
 
-    <string name="speech_prompt">Diga o seu local</string>
+    <string name="speech_prompt">Diga o algo</string>
     <string name="speech_not_supported">Desculpe, o seu dispositivo não suporta Speak to Text</string>
     <string name="tap_on_mic">Clique no microfone para falar</string>
+    <string name="title_activity_user_preferences">UserPreferences</string>
+    <string name="title_activity_user_settings">User Settings</string>
 </resources>
 

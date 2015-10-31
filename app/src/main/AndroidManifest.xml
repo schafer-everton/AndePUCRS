@@ -57,8 +57,7 @@
         <activity
             android:name=".controller.MapsActivity"
             android:label="@string/title_activity_maps"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".controller.CriticalPointActivity"
             android:label="@string/title_activity_critical_point" />
@@ -81,6 +80,8 @@
         <activity
             android:name=".controller.TurnByTurnActivity"
             android:label="@string/title_activity_turn_by_turn" >
+        </activity>
+        <activity android:name=".controller.UserConfiguration" >
         </activity>
     </application>
 

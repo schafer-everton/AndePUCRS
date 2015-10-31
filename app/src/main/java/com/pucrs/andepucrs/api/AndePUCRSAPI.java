@@ -14,6 +14,7 @@ import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.PUT;
 import retrofit.http.Path;
 
 public interface AndePUCRSAPI {
@@ -45,5 +46,8 @@ public interface AndePUCRSAPI {
 
     @GET("/andePuc/webresources/com.andepuc.map/{from}/{to}")
     void getMapFromTo(@Path("from")Integer from, @Path("to")Integer to, Callback<ArrayList<Map>> callback);
+
+    @PUT("/andePuc/webresources/com.andepuc.usuario/{id}")
+    void editUser(@Path("id")Integer id,@Body Usuario entity, Callback<ArrayList<Map>> callback);
 
 }

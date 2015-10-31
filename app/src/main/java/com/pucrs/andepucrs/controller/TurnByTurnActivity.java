@@ -44,6 +44,7 @@ public class TurnByTurnActivity extends AppCompatActivity {
         createList(result);
 
         ttsButton=(ImageButton)findViewById(R.id.ttsButton);
+
         tts=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {

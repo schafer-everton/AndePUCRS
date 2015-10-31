@@ -123,13 +123,24 @@ public class SearchActivity extends AppCompatActivity {
         int countPoint = 0;
         for (int i = 0; i < Constants.getxMapSize(); i++) {
             for (int j = 0; j < Constants.getyMapSize(); j++) {
-                obstacleMap[i][j] = 3;
+                obstacleMap[i][j] = 2;
             }
         }
         //create map points
+
         for (Map m : map) {
             obstacleMap[m.getX()][m.getY()] = 0;
             countPoint++;
+        }
+        StringBuffer print = new StringBuffer();
+        for (int i = 0; i < Constants.getxMapSize(); i++) {
+            for (int j = 0; j < Constants.getyMapSize(); j++) {
+                if (obstacleMap[i][j] == 0) {
+                    print.append("X");
+                } else
+                    print.append(" ");
+            }
+           // Log.d("MAPA", print.toString());
         }
 
         Log.d(Constants.getAppName(),"Obstacle Map size (Improved) "+countPoint);
@@ -159,7 +170,7 @@ public class SearchActivity extends AppCompatActivity {
                 b = measure(-30.0621486, -51.177588699999994, lat, lng);
                 pa = (a + b + cBot) / 2;
                 hx = (2 / cBot) * (Math.sqrt((pa * (pa - a) * (pa - b) * (pa - cBot))));
-                int around = 5;
+                int around = 2;
                 for (int i = (int) hy - around; i < hy + around; i++) {
                     for (int j = (int) hx - around; j < hx + around; j++) {
                         obstacleMap[i][j] = 0;
@@ -437,6 +448,10 @@ public class SearchActivity extends AppCompatActivity {
         }
         if (id == R.id.action_favorite) {
             i = new Intent(SearchActivity.this, FavoriteActivity.class);
+            startActivity(i);
+        }
+        if (id == R.id.action_user) {
+            i = new Intent(SearchActivity.this, UserConfiguration.class);
             startActivity(i);
         }
 

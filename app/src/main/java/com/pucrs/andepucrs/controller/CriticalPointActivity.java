@@ -358,6 +358,10 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
             i = new Intent(CriticalPointActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
+        if (id == R.id.action_user) {
+            i = new Intent(CriticalPointActivity.this, UserConfiguration.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }

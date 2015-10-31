@@ -54,11 +54,7 @@ public class AreaMap {
 		createMap();
 		log.addToLog("\tMap Created");
 	}
-	
-	/**
-	 * Sets up the Nodes of the map with the With and Height specified in the constructor
-	 * or set methods.
-	 */
+
 	private void createMap() {
 		Node node;
 		map = new ArrayList<ArrayList<Node>>();

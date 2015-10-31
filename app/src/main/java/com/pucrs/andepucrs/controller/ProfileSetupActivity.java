@@ -193,6 +193,10 @@ public class ProfileSetupActivity extends AppCompatActivity {
             i = new Intent(ProfileSetupActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
+        if (id == R.id.action_user) {
+            i = new Intent(ProfileSetupActivity.this, UserConfiguration.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }

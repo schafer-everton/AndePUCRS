@@ -114,6 +114,9 @@ public class FavoriteDetailsActivity extends AppCompatActivity {
         if (id == R.id.action_favorite) {
             i = new Intent(FavoriteDetailsActivity.this, FavoriteActivity.class);
             startActivity(i);
+        }if (id == R.id.action_user) {
+            i = new Intent(FavoriteDetailsActivity.this, UserConfiguration.class);
+            startActivity(i);
         }
 
         return super.onOptionsItemSelected(item);

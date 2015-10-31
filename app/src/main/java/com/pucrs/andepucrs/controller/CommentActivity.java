@@ -202,6 +202,10 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
             i = new Intent(CommentActivity.this, FavoriteActivity.class);
             startActivity(i);
         }
+        if (id == R.id.action_user) {
+            i = new Intent(CommentActivity.this, UserConfiguration.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }

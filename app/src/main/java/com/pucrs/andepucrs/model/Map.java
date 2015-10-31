@@ -24,6 +24,11 @@ public class Map implements Serializable {
     public Map() {
     }
 
+    public Map(Double latitude, Double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     public Map(Integer nroIntMapa) {
         this.nroIntMapa = nroIntMapa;
     }

@@ -76,10 +76,9 @@ public class LoginActivity extends AppCompatActivity {
                                 Intent i;
                                 if (redirect.equals("CriticalPointActivity")) {
                                     i = new Intent(LoginActivity.this, CriticalPointActivity.class);
-                                }else if(redirect.equals("CommentActivity")){
+                                } else if (redirect.equals("CommentActivity")) {
                                     i = new Intent(LoginActivity.this, CommentActivity.class);
-                                }
-                                else {
+                                } else {
                                     i = new Intent(LoginActivity.this, SearchActivity.class);
                                 }
                                 startActivity(i);
@@ -124,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         if (id == R.id.action_maps) {
             i = new Intent(LoginActivity.this, MapsActivity.class);
-            i.putExtra("FromMenu",true);
+            i.putExtra("FromMenu", true);
             startActivity(i);
         }
         if (id == R.id.action_profile) {
@@ -135,8 +134,12 @@ public class LoginActivity extends AppCompatActivity {
             i = new Intent(LoginActivity.this, SearchActivity.class);
             startActivity(i);
         }
-        if(id == R.id.action_favorite){
+        if (id == R.id.action_favorite) {
             i = new Intent(LoginActivity.this, FavoriteActivity.class);
+            startActivity(i);
+        }
+        if (id == R.id.action_user) {
+            i = new Intent(LoginActivity.this, UserConfiguration.class);
             startActivity(i);
         }
 
