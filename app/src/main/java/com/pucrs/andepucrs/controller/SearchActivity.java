@@ -454,6 +454,16 @@ public class SearchActivity extends AppCompatActivity {
             i = new Intent(SearchActivity.this, UserConfiguration.class);
             startActivity(i);
         }
+        if (id == R.id.action_logout) {
+            if(settings.getBoolean(Constants.getSession(),false)){
+                settings.edit().putBoolean(Constants.getSession(), false).commit();
+                Toast.makeText(SearchActivity.this, "Usuário desconectou", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(SearchActivity.this, "Nenhum usuário conectado para fazer logoff", Toast.LENGTH_SHORT).show();
+            }
+            i = new Intent(SearchActivity.this, SearchActivity.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }

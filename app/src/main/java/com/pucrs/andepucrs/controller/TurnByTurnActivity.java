@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.pucrs.andepucrs.R;
@@ -122,7 +123,17 @@ public class TurnByTurnActivity extends AppCompatActivity {
         if (id == R.id.action_favorite) {
             i = new Intent(TurnByTurnActivity.this, FavoriteActivity.class);
             startActivity(i);
+        }if (id == R.id.action_logout) {
+            if(settings.getBoolean(Constants.getSession(),false)){
+                settings.edit().putBoolean(Constants.getSession(), false);
+                Toast.makeText(TurnByTurnActivity.this, "Usuário desconectou", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(TurnByTurnActivity.this, "Nenhum usuário conectado para fazer logoff", Toast.LENGTH_SHORT).show();
+            }
+            i = new Intent(TurnByTurnActivity.this, SearchActivity.class);
+            startActivity(i);
         }
+
         return super.onOptionsItemSelected(item);
     }
     @Override

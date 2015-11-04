@@ -47,7 +47,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
+import com.pucrs.andepucrs.AndePUCRSApplication;
 import com.pucrs.andepucrs.R;
+import com.pucrs.andepucrs.api.AndePUCRSAPI;
 import com.pucrs.andepucrs.api.Constants;
 import com.pucrs.andepucrs.heuristic.AStarHeuristic;
 import com.pucrs.andepucrs.heuristic.DiagonalHeuristic;
@@ -62,6 +64,10 @@ import com.pucrs.andepucrs.pathFinder.AreaMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MapsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, RoutingListener, SensorEventListener {
@@ -100,6 +106,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     private Route gRoute;
     private TextToSpeech tts;
     private boolean printed;
+    private AndePUCRSApplication app;
 
 
     /**
@@ -154,7 +161,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
+                if (status != TextToSpeech.ERROR) {
                     tts.setLanguage(Locale.getDefault());
                 }
             }
@@ -165,7 +172,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         firstTime = true;
         goalX = goalY = 0;
         mapToPrint = new ArrayList<>();
-        doTrace = true;
+        doTrace = false;
         useGoogleDirections = false;
         /**
          * Read Seach points
@@ -190,6 +197,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             if (searchPoint != null) {
                 search = new LatLng(searchPoint.getLatitude(), searchPoint.getLongitude());
                 hadSearch = true;
+                doTrace = true;
             } else {
                 hadSearch = false;
                 search = new LatLng(-30.058710, -51.173776);
@@ -321,14 +329,19 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         commentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LatLng current = new LatLng(myfirstLocation.getLatitude(), myfirstLocation.getLongitude());
-                Gson gson = new Gson();
-                String offlineData = gson.toJson(current);
-                settings.edit().putString(Constants.getMyCurrentLocation(), offlineData).commit();
-                offlineData = gson.toJson(searchPoint);
-                settings.edit().putString(Constants.getSerachPoint(), offlineData).commit();
-                Intent i = new Intent(MapsActivity.this, CommentActivity.class);
-                startActivity(i);
+                if (hadSearch) {
+                    LatLng current = new LatLng(myfirstLocation.getLatitude(), myfirstLocation.getLongitude());
+                    Gson gson = new Gson();
+                    String offlineData = gson.toJson(current);
+                    settings.edit().putString(Constants.getMyCurrentLocation(), offlineData).commit();
+                    offlineData = gson.toJson(searchPoint);
+                    settings.edit().putString(Constants.getSerachPoint(), offlineData).commit();
+                    Intent i = new Intent(MapsActivity.this, CommentActivity.class);
+                    startActivity(i);
+                } else {
+                    Toast.makeText(MapsActivity.this, "Por favor, realize uma pesquisa para enviar um comentário", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
@@ -348,7 +361,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 alertDialogBuilder.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(MapsActivity.this, "Recalculando", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MapsActivity.this, "Re-calculando", Toast.LENGTH_SHORT).show();
                         if (polylineFinal != null) {
                             polylineFinal.remove();
                         }
@@ -376,16 +389,49 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         /**
          * Calculate the GOOGLE ROUTE
          * */
-        Log.d(Constants.getAppName(),"Starting Google Directions API");
-        LatLng startGoogle = new LatLng(-30.061710, -51.175061);
-        LatLng goalGoogle = new LatLng(searchGoal.getLatitude(), searchGoal.getLongitude());
-        Routing routing = new Routing.Builder()
-                .travelMode(Routing.TravelMode.WALKING)
-                .withListener(MapsActivity.this)
-                .waypoints(startGoogle, goalGoogle)
-                .build();
-        routing.execute();
+        if (hadSearch) {
+            Log.d(Constants.getAppName(), "Starting Google Directions API");
+            LatLng startGoogle = new LatLng(-30.061710, -51.175061);
+            LatLng goalGoogle = new LatLng(searchGoal.getLatitude(), searchGoal.getLongitude());
+            Routing routing = new Routing.Builder()
+                    .travelMode(Routing.TravelMode.WALKING)
+                    .withListener(MapsActivity.this)
+                    .waypoints(startGoogle, goalGoogle)
+                    .build();
+            routing.execute();
+        } else {
+            printObstacle();
+        }
     }
+
+    public void printObstacle() {
+        mapProgressBar.setVisibility(View.VISIBLE);
+        if (!hadSearch) {
+            app = (AndePUCRSApplication) getApplication();
+            AndePUCRSAPI webService = app.getService();
+            webService.findAllPoints(new Callback<ArrayList<Ponto>>() {
+                @Override
+                public void success(ArrayList<Ponto> pontos, Response response) {
+                    allPoints = pontos;
+                    for (Ponto obstacleToPrint : allPoints) {
+                       // Log.d(Constants.getAppName(), "Obstacle Marker " + obstacleToPrint.getNroIntPref().getNroIntPref());
+                        Marker obtacleMarker = mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(obstacleToPrint.getLatitude(), obstacleToPrint.getLongitude()))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.obstacle_icon))
+                                .title("Obstaculo, " + obstacleToPrint.getNroIntPref().getNome()));
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d(Constants.getAppName() + "Allpoints", error.getMessage());
+                }
+            });
+        }
+
+        mapProgressBar.setVisibility(View.INVISIBLE);
+    }
+
 
     @MainThread
     public void traceRoute() {
@@ -395,7 +441,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             public void run() {
                 if (mapToPrint == null) {
                     mapProgressBar.setVisibility(View.VISIBLE);
-                    Toast.makeText(MapsActivity.this, "Usando o google direction API", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MapsActivity.this, "Usando o google direction API", Toast.LENGTH_SHORT).show();
                     useGoogleDirections = true;
                     onRoutingSuccess(gDirectionsPolylineOptions, gRoute);
                 } else {
@@ -433,14 +479,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                             .title("Destino"));
                     mapProgressBar.setVisibility(View.INVISIBLE);
                 }
-
                 for (Ponto obstacleToPrint : allPoints) {
                     if (obstacleToPrint.getNroIntPref() != null && obstacleToPrint.getNroIntPref().isSelected()) {
                         //      Log.d(Constants.getAppName(), "Obstacle Marker " + obstacleToPrint.getNroIntPref().getNroIntPref());
                         Marker obtacleMarker = mMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(obstacleToPrint.getLatitude(), obstacleToPrint.getLongitude()))
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.obstacle_icon))
-                                .title("Obstaculo, "+obstacleToPrint.getNroIntPref().getNome()));
+                                .title("Obstaculo, " + obstacleToPrint.getNroIntPref().getNome()));
                     }
                 }
                 printed = true;
@@ -491,7 +536,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 offlineData = settings.getString(Constants.getDestY(), "");
                 goalY = (int) gson.fromJson(offlineData, int.class);
                 */
-
 
 
                 /**
@@ -727,7 +771,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (!marker.getTitle().contains("Obstaculo") && !marker.getTitle().contains("Destino") ) {
+                if (!marker.getTitle().contains("Obstaculo") && !marker.getTitle().contains("Destino")) {
                     String lat = String.valueOf(marker.getPosition().latitude);
                     String longi = String.valueOf(marker.getPosition().longitude);
                     Intent i = new Intent(MapsActivity.this, CriticalPointActivity.class);
@@ -735,7 +779,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     settings.edit().putString(Constants.getMarkerLongitude(), longi).commit();
                     Log.i(Constants.getAppName(), "MAPS" + marker.getPosition().toString());
                     startActivity(i);
-                }else{
+                } else {
                     String toSpeak = marker.getTitle().toString();
                     tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                 }
@@ -789,7 +833,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         if (!hadSearch) {
             mapProgressBar.setVisibility(View.INVISIBLE);
         }
-        if(printed) {
+        if (printed) {
             Log.d(Constants.getAppName(), "Chamou camera");
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude()))      // Sets the center of the map to Mountain View
@@ -868,8 +912,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onRoutingSuccess(PolylineOptions polylineOptions, Route route) {
-        Log.d(Constants.getAppName(),"Called, onROutingSuccess");
-        if(useGoogleDirections){
+        Log.d(Constants.getAppName(), "Called, onROutingSuccess");
+        if (useGoogleDirections) {
             mapProgressBar.setVisibility(View.INVISIBLE);
             PolylineOptions polyoptions = new PolylineOptions();
             polyoptions.color(Color.BLUE);
@@ -878,11 +922,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             mMap.addPolyline(polyoptions);
             mapToPrint = new ArrayList<>();
             ArrayList<LatLng> pontos = (ArrayList) polylineOptions.getPoints();
-            for (LatLng l: pontos){
+            for (LatLng l : pontos) {
                 mapToPrint.add(new Map(l.latitude, l.longitude));
             }
 
-        }else{
+        } else {
             gDirectionsPolylineOptions = polylineOptions;
             gRoute = route;
         }

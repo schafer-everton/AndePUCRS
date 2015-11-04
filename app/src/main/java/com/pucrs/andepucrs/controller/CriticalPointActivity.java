@@ -362,6 +362,16 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
             i = new Intent(CriticalPointActivity.this, UserConfiguration.class);
             startActivity(i);
         }
+        if (id == R.id.action_logout) {
+            if(settings.getBoolean(Constants.getSession(),false)){
+                settings.edit().putBoolean(Constants.getSession(), false).commit();
+                Toast.makeText(CriticalPointActivity.this, "Usuário desconectou", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(CriticalPointActivity.this, "Nenhum usuário conectado para fazer logoff", Toast.LENGTH_SHORT).show();
+            }
+            i = new Intent(CriticalPointActivity.this, SearchActivity.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }

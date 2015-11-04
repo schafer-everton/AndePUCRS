@@ -4,6 +4,7 @@
     <string name="name_textview">Nome</string>
     <string name="email_textview">Email</string>
     <string name="password_textview">Senha</string>
+    <string name="newpassword_textview">Nova Senha</string>
     <string name="passwordverify_textview">Cofrimar Senha</string>
     <string name="signIn_button">Salvar</string>
     <string name="title_activity_profile_setup">Perfil do Usuário</string>
@@ -33,6 +34,7 @@
     <string name="title_activity_maps_activity_teste">Mapa</string>
     <string name="title_activity_favorite">Rotas Favoritas</string>
     <string name="tittle_activity_user">Dados do Usuário</string>
+    <string name="logout">Logout</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
     <string name="title_activity_comment">Comentário</string>

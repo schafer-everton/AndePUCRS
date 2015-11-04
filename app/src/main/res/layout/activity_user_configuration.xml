@@ -50,47 +50,49 @@
         android:id="@+id/passwordTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/newpassword_textview"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/emailEditText"
-        android:text="@string/password_textview"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_below="@+id/oldPasswordEditText"
+        android:layout_alignEnd="@+id/oldPwdTextView" />
 
     <EditText
         android:id="@+id/passwordEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/passwordTextView"
         android:ems="10"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:layout_below="@+id/passwordTextView"
+        android:layout_toEndOf="@+id/passwordVerifyTextView"
+        android:layout_alignStart="@+id/oldPasswordEditText" />
 
     <TextView
         android:id="@+id/passwordVerifyTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/passwordEditText"
         android:text="@string/passwordverify_textview"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_below="@+id/passwordEditText"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:id="@+id/passwordVerifyEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/passwordEditText"
+        android:ems="10"
+        android:inputType="textPassword"
         android:layout_below="@+id/passwordVerifyTextView"
         android:layout_toEndOf="@+id/passwordVerifyTextView"
-        android:ems="10"
-        android:inputType="textPassword" />
+        android:layout_alignStart="@+id/passwordEditText" />
 
     <Button
         android:id="@+id/signInButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/signIn_button"
-        android:layout_marginTop="38dp"
         android:layout_below="@+id/passwordVerifyEditText"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp" />
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -109,6 +111,23 @@
         android:layout_below="@+id/signInButton"
         android:layout_centerHorizontal="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Senha Antiga"
+        android:id="@+id/oldPwdTextView"
+        android:layout_below="@+id/emailEditText"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/oldPasswordEditText"
+        android:layout_below="@+id/oldPwdTextView"
+        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>

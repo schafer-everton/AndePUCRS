@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.pucrs.andepucrs.R;
@@ -116,6 +117,16 @@ public class FavoriteDetailsActivity extends AppCompatActivity {
             startActivity(i);
         }if (id == R.id.action_user) {
             i = new Intent(FavoriteDetailsActivity.this, UserConfiguration.class);
+            startActivity(i);
+        }
+        if (id == R.id.action_logout) {
+            if(settings.getBoolean(Constants.getSession(),false)){
+                settings.edit().putBoolean(Constants.getSession(), false).commit();
+                Toast.makeText(FavoriteDetailsActivity.this, "Usuário desconectou", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(FavoriteDetailsActivity.this, "Nenhum usuário conectado para fazer logoff", Toast.LENGTH_SHORT).show();
+            }
+            i = new Intent(FavoriteDetailsActivity.this, SearchActivity.class);
             startActivity(i);
         }
 

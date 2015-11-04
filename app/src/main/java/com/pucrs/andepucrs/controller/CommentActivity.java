@@ -206,6 +206,16 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
             i = new Intent(CommentActivity.this, UserConfiguration.class);
             startActivity(i);
         }
+        if (id == R.id.action_logout) {
+            if(settings.getBoolean(Constants.getSession(),false)){
+                settings.edit().putBoolean(Constants.getSession(), false).commit();
+                Toast.makeText(CommentActivity.this, "Usuário desconectou", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(CommentActivity.this, "Nenhum usuário conectado para fazer logoff", Toast.LENGTH_SHORT).show();
+            }
+            i = new Intent(CommentActivity.this, SearchActivity.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }

@@ -36,10 +36,12 @@ public class UserConfiguration extends AppCompatActivity {
     private EditText passwordVerifyEditText;
     private EditText emailEditText;
     private EditText nameEditText;
+    private EditText oldPasswordEditText;
     private TextView errorTextView;
     private int moveon;
     private AndePUCRSApplication app;
     private Usuario user;
+    private ArrayList<Usuario> allUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class UserConfiguration extends AppCompatActivity {
         emailEditText = (EditText) findViewById(R.id.emailEditText);
         nameEditText = (EditText) findViewById(R.id.nameEditText);
         errorTextView = (TextView) findViewById(R.id.errorTextView);
+        oldPasswordEditText = (EditText) findViewById(R.id.oldPasswordEditText);
         pbar = (ProgressBar) findViewById(R.id.progressBarSignin);
         pbar.setVisibility(View.INVISIBLE);
         errorTextView.setText("");
@@ -61,83 +64,112 @@ public class UserConfiguration extends AppCompatActivity {
         user = gson.fromJson(offlineData, Usuario.class);
 
         nameEditText.setText(user.getNome());
-        passwordEditText.setText(user.getHashSenha());
         emailEditText.setText(user.getEmail());
-        passwordVerifyEditText.setText(user.getHashSenha());
+
+
 
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 moveon = 0;
-                if (passwordVerifyEditText.getText().toString().equals("")) {
-                    Toast.makeText(getApplicationContext(), R.string.dados_cadastro,
-                            Toast.LENGTH_LONG).show();
-                    moveon = 1;
-
-                    passwordEditText.requestFocus();
-                }
-
-                if (emailEditText.getText().toString().equals("")) {
-                    Toast.makeText(getApplicationContext(), R.string.dados_cadastro,
-                            Toast.LENGTH_LONG).show();
-                    moveon = 1;
-                    emailEditText.requestFocus();
-                }
-                if (nameEditText.getText().toString().equals("")) {
-                    Toast.makeText(getApplicationContext(), R.string.dados_cadastro,
-                            Toast.LENGTH_LONG).show();
-                    moveon = 1;
-                    nameEditText.requestFocus();
-                }
-
-                if (!validatePassword(passwordEditText.getText().toString(), passwordVerifyEditText.getText().toString())) {
-                    Toast.makeText(getApplicationContext(), "As senhas não conhecidem ou são menores que 6",
-                            Toast.LENGTH_LONG).show();
-                    moveon = 1;
-                    passwordEditText.requestFocus();
-                }
-                if (!validateEmail(emailEditText.getText().toString())) {
-                    Toast.makeText(getApplicationContext(), "Informe um email válido", Toast.LENGTH_LONG).show();
-                    moveon = 1;
-                    emailEditText.requestFocus();
-                }
-                if (nameEditText.length() <= 0) {
-                    Toast.makeText(getApplicationContext(), "Informe um nome válido", Toast.LENGTH_LONG).show();
-                    moveon = 1;
-                    nameEditText.requestFocus();
-                }
-
-                if (moveon == 0) {
-                    pbar.setVisibility(View.VISIBLE);
-                    app = (AndePUCRSApplication) getApplication();
-                    AndePUCRSAPI api = app.getService();
-
-                    user.setNome(nameEditText.getText().toString());
-                    user.setEmail(emailEditText.getText().toString());
-
-                    user.setHashSenha(passwordEditText.getText().toString());
-                    api.editUser(user.getNroIntUsuario(), user, new Callback<ArrayList<Map>>() {
-                        @Override
-                        public void success(ArrayList<Map> maps, Response response) {
-                            pbar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(UserConfiguration.this, "Sucesso", Toast.LENGTH_SHORT).show();
-                            settings.edit().putInt(Constants.getUserId(), user.getNroIntUsuario()).commit();
-                            Gson gson = new Gson();
-                            String offlineData = gson.toJson(user);
-                            settings.edit().putString(Constants.getUserData(), offlineData).commit();
-                            Intent i = new Intent(UserConfiguration.this, SearchActivity.class);
-                            startActivity(i);
+                pbar.setVisibility(View.VISIBLE);
+                app = (AndePUCRSApplication) getApplication();
+                final AndePUCRSAPI api = app.getService();
+                api.findAllUser(new Callback<ArrayList<Usuario>>() {
+                    @Override
+                    public void success(ArrayList<Usuario> usuarios, Response response) {
+                        allUser = usuarios;
+                        if (passwordEditText.getText().toString().equals("")) {
+                            Toast.makeText(getApplicationContext(), "As senhas não podem ser vazias",
+                                    Toast.LENGTH_LONG).show();
+                            moveon = 1;
+                            passwordEditText.requestFocus();
+                        }
+                        if (passwordVerifyEditText.getText().toString().equals("")) {
+                            Toast.makeText(getApplicationContext(), "As senhas não podem ser vazias",
+                                    Toast.LENGTH_LONG).show();
+                            moveon = 1;
+                            passwordVerifyEditText.requestFocus();
                         }
 
-                        @Override
-                        public void failure(RetrofitError error) {
-                            pbar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(UserConfiguration.this, "Não foi possivel atualizar as informações, tente novamente mais tarde", Toast.LENGTH_SHORT).show();
-                            Log.d(Constants.getAppName(), error.getMessage().toString());
+                        if (emailEditText.getText().toString().equals("")) {
+                            Toast.makeText(getApplicationContext(), "O email não pode ser vazio",
+                                    Toast.LENGTH_LONG).show();
+                            moveon = 1;
+                            emailEditText.requestFocus();
                         }
-                    });
+                        if (nameEditText.getText().toString().equals("")) {
+                            Toast.makeText(getApplicationContext(),"O nome não pode ser vazio",
+                                    Toast.LENGTH_LONG).show();
+                            moveon = 1;
+                            nameEditText.requestFocus();
+                        }
 
-                }
+                        if (!validatePassword(passwordEditText.getText().toString(), passwordVerifyEditText.getText().toString())) {
+                            Toast.makeText(getApplicationContext(), "As senhas não conhecidem ou são menores que 6",
+                                    Toast.LENGTH_LONG).show();
+                            moveon = 1;
+                            passwordEditText.requestFocus();
+                        }
+                        if (!validateEmail(emailEditText.getText().toString())) {
+                            Toast.makeText(getApplicationContext(), "Informe um email válido", Toast.LENGTH_LONG).show();
+                            moveon = 1;
+                            emailEditText.requestFocus();
+                        }
+                        if (nameEditText.length() <= 0) {
+                            Toast.makeText(getApplicationContext(), "Informe um nome válido", Toast.LENGTH_LONG).show();
+                            moveon = 1;
+                            nameEditText.requestFocus();
+                        }
+                        boolean hit=false;
+                        for (Usuario u : usuarios){
+                            if(emailEditText.getText().toString().equals(u.getEmail())){
+                                if(oldPasswordEditText.getText().toString().equals(u.getHashSenha())){
+                                    hit = true;
+                                    user.setNroIntUsuario(u.getNroIntUsuario());
+                                }
+                            }
+                        }
+                        if (moveon == 0 && hit) {
+                           // app = (AndePUCRSApplication) getApplication();
+
+                            user.setNome(nameEditText.getText().toString());
+                            user.setEmail(emailEditText.getText().toString());
+                            user.setHashSenha(passwordEditText.getText().toString());
+                           // AndePUCRSAPI api = app.getService();
+                            api.editUser(user.getNroIntUsuario(), user, new Callback<ArrayList<Map>>() {
+                                @Override
+                                public void success(ArrayList<Map> maps, Response response) {
+                                    pbar.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(UserConfiguration.this, "Sucesso", Toast.LENGTH_SHORT).show();
+                                    settings.edit().putInt(Constants.getUserId(), user.getNroIntUsuario()).commit();
+                                    Gson gson = new Gson();
+                                    String offlineData = gson.toJson(user);
+                                    settings.edit().putString(Constants.getUserData(), offlineData).commit();
+                                    settings.edit().putBoolean(Constants.getSession(), false).commit();
+                                    Intent i = new Intent(UserConfiguration.this, SearchActivity.class);
+                                    startActivity(i);
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    pbar.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(UserConfiguration.this, "Não foi possivel atualizar as informações, tente novamente mais tarde", Toast.LENGTH_SHORT).show();
+                                    Log.d(Constants.getAppName(), error.getMessage().toString());
+                                }
+                            });
+
+                        }else
+                        {
+                            pbar.setVisibility(View.INVISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
+                    }
+                });
             }
         });
 
@@ -173,6 +205,16 @@ public class UserConfiguration extends AppCompatActivity {
         }
         if (id == R.id.action_user) {
             i = new Intent(UserConfiguration.this, UserConfiguration.class);
+            startActivity(i);
+        }
+        if (id == R.id.action_logout) {
+            if(settings.getBoolean(Constants.getSession(),false)){
+                settings.edit().putBoolean(Constants.getSession(), false).commit();
+                Toast.makeText(UserConfiguration.this, "Usuário desconectou", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(UserConfiguration.this, "Nenhum usuário conectado para fazer logoff", Toast.LENGTH_SHORT).show();
+            }
+            i = new Intent(UserConfiguration.this, SearchActivity.class);
             startActivity(i);
         }
 

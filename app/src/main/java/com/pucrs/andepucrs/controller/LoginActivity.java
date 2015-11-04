@@ -142,6 +142,16 @@ public class LoginActivity extends AppCompatActivity {
             i = new Intent(LoginActivity.this, UserConfiguration.class);
             startActivity(i);
         }
+        if (id == R.id.action_logout) {
+            if(settings.getBoolean(Constants.getSession(),false)){
+                settings.edit().putBoolean(Constants.getSession(), false).commit();
+                Toast.makeText(LoginActivity.this, "Usuário desconectou", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(LoginActivity.this, "Nenhum usuário conectado para fazer logoff", Toast.LENGTH_SHORT).show();
+            }
+            i = new Intent(LoginActivity.this, SearchActivity.class);
+            startActivity(i);
+        }
 
         return super.onOptionsItemSelected(item);
     }
