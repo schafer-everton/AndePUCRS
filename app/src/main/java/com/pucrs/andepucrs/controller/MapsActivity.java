@@ -669,7 +669,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                         b = measure(-30.0621486, -51.177588699999994, lat, lng);
                         pa = (a + b + cBot) / 2;
                         hx = (2 / cBot) * (Math.sqrt((pa * (pa - a) * (pa - b) * (pa - cBot))));
-                        around = 10;
+                        around = 20;
                         for (int i = (int) hy - around; i < hy + around; i++) {
                             for (int j = (int) hx - around; j < hx + around; j++) {
                                 obstacleMap[i][j] = 1;

@@ -325,7 +325,8 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void failure(RetrofitError error) {
                 Toast.makeText(SearchActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e(Constants.getAppName(), error.getMessage());
+                Log.e(Constants.getAppName(),"Not able to loade" + error.getMessage());
+                searchProgressBar.setVisibility(View.INVISIBLE);
             }
         });
     }
