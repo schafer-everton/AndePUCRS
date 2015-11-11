@@ -124,7 +124,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     private float[] mR = new float[9];
     private float[] mOrientation = new float[3];
     private float mCurrentDegree = 0f;
-
+    private boolean traceDone;
     public static double measure(double lat1, double lon1, double lat2, double lon2) {
         double R = 6378.137;
         double dLat = (lat2 - lat1) * Math.PI / 180;
@@ -148,7 +148,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         mapProgressBar = (ProgressBar) findViewById(R.id.mapProgressBar);
         recalculateButton = (Button) findViewById(R.id.recalculateButton);
         mapProgressBar.setVisibility(View.INVISIBLE);
-
+        traceDone = false;
         printed = false;
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -217,6 +217,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+              //  mapToPrintCompassCount++;
+             //   Log.d("DELTA", "" + mapToPrintCompassCount);
+              //  Log.d("DELTA", ""+ mapToPrint.get(mapToPrintCompassCount).getLatitude()+""+ mapToPrint.get(mapToPrintCompassCount).getLongitude());
                 LatLng latLng = mMap.getCameraPosition().target;
                 MarkerOptions newMarker = new MarkerOptions()
                         .position(latLng)
@@ -402,6 +405,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         } else {
             printObstacle();
         }
+
     }
 
     public void printObstacle() {
@@ -489,6 +493,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     }
                 }
                 printed = true;
+                traceDone = true;
                 favoriteButton.setEnabled(true);
                 commentButton.setEnabled(true);
                 //turnByTurnButton.setEnabled(true);
@@ -682,10 +687,28 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 startX = 665;
                 startY = 223;
-                /*
+
+                /**
+                 * From Estacionamento to RU
+                 * */
+               startX = 652;
+                startY = 275;
                 goalX = 70;
                 goalY = 522;
 
+                /**
+                 * From RU to Estacionamento
+                 * */
+                /*
+                goalX = 652;
+                goalY = 275;
+                startX = 70;
+                startY = 522;
+*/
+
+                /*
+                goalX = 70;
+                goalY = 522;
                 startX = 598;
                 startY = 392;
                 goalX = 421;
@@ -792,6 +815,15 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             location.setLongitude(-51.1733438);
         } else {
             myCurrentLocation = location;
+            if(traceDone){
+
+                double delta = measure(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude(), mapToPrint.get(mapToPrintCompassCount).getLatitude(), mapToPrint.get(mapToPrintCompassCount).getLongitude());
+                Log.d("DELTA","Delta: "+delta);
+                if (delta <= 5) {
+                    mapToPrintCompassCount++;
+                    Log.d("DELTA", "" + mapToPrintCompassCount);
+                }
+            }
         }
 
         if (firstTime) {
@@ -925,6 +957,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             for (LatLng l : pontos) {
                 mapToPrint.add(new Map(l.latitude, l.longitude));
             }
+            traceDone = true;
 
         } else {
             gDirectionsPolylineOptions = polylineOptions;
@@ -953,11 +986,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
             if (mapToPrint != null && mapToPrint.size() > 0) {
                 if (myCurrentLocation != null && mapToPrintCompassCount < mapToPrint.size()) {
-                    double delta = measure(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude(), mapToPrint.get(mapToPrintCompassCount).getLatitude(), mapToPrint.get(mapToPrintCompassCount).getLongitude());
-                    if (delta <= 1.5) {
-                        mapToPrintCompassCount++;
-                        Log.d("DELTA", "" + mapToPrintCompassCount);
-                    }
 
                     float azimuth = mOrientation[0];
                     Location currentLoc = myCurrentLocation;

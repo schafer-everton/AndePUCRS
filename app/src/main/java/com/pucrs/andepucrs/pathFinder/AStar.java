@@ -12,9 +12,7 @@ import java.util.Collections;
 public class AStar {
 	private AreaMap map;
 	private AStarHeuristic heuristic;
-	/**
-	 * closedList The list of Nodes not searched yet, sorted by their distance to the goal as guessed by our heuristic.
-	 */
+
 	private ArrayList<Node> closedList;
 	private SortedNodeList openList;
 	private ArrayList<Point> shortestPath;

@@ -6,12 +6,7 @@ import com.pucrs.andepucrs.utils.Logger;
 
 import java.util.ArrayList;
 
-/**
- * The AreaMap holds information about the With, Height, 
- * Start position, Goal position and Obstacles on the map.
- * A place on the map is referred to by it's (x,y) coordinates, 
- * where (0,0) is the upper left corner, and x is horizontal and y is vertical.
- */
+
 public class AreaMap {
 
 	private int mapWith;
@@ -25,12 +20,7 @@ public class AreaMap {
 
 	private Logger log = new Logger();
 	
-	/**
-	 * Class constructor specifying the With and Height of a otherwise empty map.
-	 * (no start and goal location or obstacles)
-	 * @param mapWith
-	 * @param mapHeight
-	 */
+
 	public AreaMap(int mapWith, int mapHeight) {
 		this.mapWith = mapWith;
 		this.mapHeight = mapHeight;
@@ -39,14 +29,7 @@ public class AreaMap {
 		log.addToLog("\tMap Created");
 	}
 	
-	/**
-	 * Class constructor specifying the With, Height and Obstacles of the map.
-	 * (no start and goal location)
-	 * The Obstacle 2D array map can be any With and Height
-	 * @param mapWith		the with of the map as int
-	 * @param mapHeight		the Height of the map as int
-	 * @param obstacleMap	a 2D int array map of the obstacles on the map. '1' is obstacle, '0' is not.
-	 */
+
 	public AreaMap(int mapWith, int mapHeight, int[][] obstacleMap) {
 		this.mapWith = mapWith;
 		this.mapHeight = mapHeight;
