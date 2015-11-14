@@ -359,6 +359,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         recalculateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(v.getContext());
                 alertDialogBuilder.setMessage("Você tem certeza que quer recalcular a rota ?");
                 alertDialogBuilder.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
@@ -498,7 +499,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 commentButton.setEnabled(true);
                 //turnByTurnButton.setEnabled(true);
                 recalculateButton.setEnabled(true);
-
             }
         });
 
@@ -615,7 +615,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 for (Ponto p : allPoints) {
                     for (Preferencias preferencias : allpreferences) {
                         if (p.getNroIntPref() != null) {
-                            if (p.getNroIntPref().getNome().equalsIgnoreCase(preferencias.getNome())) {
+                            if (p.getNroIntPref().getNroIntPref() == preferencias.getNroIntPref()) {
                                 p.getNroIntPref().setSelected(preferencias.isSelected());
                             }
                         }
@@ -811,19 +811,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         });
 
         if (location == null) {
+            //biblioteca
             location.setLatitude(-30.059794);
             location.setLongitude(-51.1733438);
         } else {
             myCurrentLocation = location;
-            if(traceDone){
-
-                double delta = measure(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude(), mapToPrint.get(mapToPrintCompassCount).getLatitude(), mapToPrint.get(mapToPrintCompassCount).getLongitude());
-                Log.d("DELTA","Delta: "+delta);
-                if (delta <= 5) {
-                    mapToPrintCompassCount++;
-                    Log.d("DELTA", "" + mapToPrintCompassCount);
-                }
-            }
         }
 
         if (firstTime) {
@@ -835,7 +827,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             double lat;
             double lng;
             double a, b, pa, hx, hy, cTop, cBot;
-            //adiciona destino no obstacle map
             lat = myfirstLocation.getLatitude();
             lng = myfirstLocation.getLongitude();
 
@@ -859,7 +850,21 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             if (doTrace) {
                 doTrace = false;
                 mapProgressBar.setVisibility(View.VISIBLE);
-                runAStar();
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                alertDialogBuilder.setMessage(
+                        "Por favor, note que a rota pode estar desatualizada, devido a mudanças no ambiente.\n" +
+                        "Se estiver, por favor, envie o novo obstáculo para o servidor.\n" +
+                        "Assim, contribuindo com a aplicação.");
+                alertDialogBuilder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        runAStar();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
             }
         }
         if (!hadSearch) {
@@ -983,10 +988,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         if (mLastAccelerometerSet && mLastMagnetometerSet) {
             SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
             SensorManager.getOrientation(mR, mOrientation);
-
             if (mapToPrint != null && mapToPrint.size() > 0) {
                 if (myCurrentLocation != null && mapToPrintCompassCount < mapToPrint.size()) {
-
+                    double delta = measure(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude(), mapToPrint.get(mapToPrintCompassCount).getLatitude(), mapToPrint.get(mapToPrintCompassCount).getLongitude());
+                    if (delta <= 5) {
+                        mapToPrintCompassCount++;
+                        Log.d("DELTA","Delta: "+delta+"Count:" + mapToPrintCompassCount);
+                    }
                     float azimuth = mOrientation[0];
                     Location currentLoc = myCurrentLocation;
                     Location target = new Location("");
@@ -1012,19 +1020,22 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
                     ra.setDuration(250);
                     ra.setFillAfter(true);
-
                     mPointer.startAnimation(ra);
                     mCurrentDegree = -direction;
-
                 }
             }
 
         }
     }
 
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+        if(traceDone){
+            double delta = measure(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude(), mapToPrint.get(mapToPrintCompassCount).getLatitude(), mapToPrint.get(mapToPrintCompassCount).getLongitude());
+            if (delta <= 5){
+                mapToPrintCompassCount++;
+                Log.d("DELTA","Accurracy Delta: "+delta+"Count:" + mapToPrintCompassCount);
+            }
+        }
     }
 }
