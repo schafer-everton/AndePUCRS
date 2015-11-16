@@ -32,7 +32,7 @@ public class Comentario implements Serializable {
     public Comentario() {
     }
 
-    public Comentario(Double latitudeOrigem, Double longitudeOrigem, Double latitudeDestino, Double longitudeDestino, String comentario,int valor, Usuario nroIntUsuario) {
+    public Comentario(Double latitudeOrigem, Double longitudeOrigem, Double latitudeDestino, Double longitudeDestino, String comentario, int valor, Usuario nroIntUsuario) {
         this.latitudeOrigem = latitudeOrigem;
         this.longitudeOrigem = longitudeOrigem;
         this.latitudeDestino = latitudeDestino;

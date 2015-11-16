@@ -395,7 +395,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
          * */
         if (hadSearch) {
             Log.d(Constants.getAppName(), "Starting Google Directions API");
-            LatLng startGoogle = new LatLng(-30.061710, -51.175061);
+            LatLng startGoogle = new LatLng(-30.061802, -51.174701);
             LatLng goalGoogle = new LatLng(searchGoal.getLatitude(), searchGoal.getLongitude());
             Routing routing = new Routing.Builder()
                     .travelMode(Routing.TravelMode.WALKING)
@@ -625,8 +625,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 /**
                  * ajusta mapa, adicionando mais pontos ao redor das rotas
                  */
-                int asd = 0;
-                ArrayList<Map> axis = new ArrayList();
+
                 //need to improve this;
                 for (int x = 0; x < 810; x++) {
                     for (int y = 0; y < 712; y++) {
@@ -636,25 +635,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                                     obstacleMap[i][j] = 0;
                                 }
                             }
-                            /*
-                            Map tr = new Map();
-                            tr.setX(x);
-                            tr.setY(y);
-                            axis.add(tr);
-                            asd++;*/
                         }
                     }
                 }
-                //Log.d("TESTES", "" + asd);
-/*
-                for (Map m: axis){
-                    obstacleMap[m.getX()][m.getY()] = 0;
-                    obstacleMap[m.getX()+1][m.getY()] = 0;
-                    obstacleMap[m.getX()][m.getY()+1] = 0;
-                    obstacleMap[m.getX()][m.getY()-1] = 0;
-                    obstacleMap[m.getX()+1][m.getY()] = 0;
-                }
-                Log.d("TESTE",""+axis.size());*/
+
                 /**
                  * carrega todos os pontos criticos, baseado na pref;
                  */
@@ -691,11 +675,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 /**
                  * From Estacionamento to RU
                  * */
-               startX = 652;
+/*                startX = 652;
                 startY = 275;
                 goalX = 70;
                 goalY = 522;
-
+*/
                 /**
                  * From RU to Estacionamento
                  * */
@@ -949,8 +933,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onRoutingSuccess(PolylineOptions polylineOptions, Route route) {
-        Log.d(Constants.getAppName(), "Called, onROutingSuccess");
+
         if (useGoogleDirections) {
+            Log.d(Constants.getAppName(), "Called, onROutingSuccess");
             mapProgressBar.setVisibility(View.INVISIBLE);
             PolylineOptions polyoptions = new PolylineOptions();
             polyoptions.color(Color.BLUE);

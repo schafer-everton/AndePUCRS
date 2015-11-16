@@ -71,6 +71,7 @@ public class CommentActivity extends AppCompatActivity implements NumberPicker.O
         np.setWrapSelectorWheel(false);
         np.setOnValueChangedListener(this);
         np.setOrientation(LinearLayout.HORIZONTAL);
+        numberSelected = 0;
         commentProgressBar.setVisibility(View.INVISIBLE);
         final int userID = settings.getInt(Constants.getUserId(), 0);
         final Boolean isLoggedIn = settings.getBoolean(Constants.getSession(), false);
