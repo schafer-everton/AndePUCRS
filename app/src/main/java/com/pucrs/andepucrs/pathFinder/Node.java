@@ -4,7 +4,7 @@ import android.graphics.Point;
 import java.util.ArrayList;
 
 public class Node implements Comparable<Node> {
-	/* Nodes that this is connected to */
+
 	AreaMap map;
 	boolean visited;
 	float distanceFromStart;

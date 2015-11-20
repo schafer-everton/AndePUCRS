@@ -30,7 +30,7 @@ public class PathFinder {
 		ArrayList<Point> shortestPath = aStar.calcShortestPath(map.getStartLocationX(), map.getStartLocationY(), map.getGoalLocationX(), map.getGoalLocationY());
 		
 		//log.addToLog("Printing map of shortest path...");
-		//new PrintMap(map, shortestPath);
+
 		
 		log.addToLog("Calculating optimized waypoints...");
 		s.start();

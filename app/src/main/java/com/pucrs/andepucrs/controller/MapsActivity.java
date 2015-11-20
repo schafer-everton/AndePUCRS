@@ -672,6 +672,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 startX = 665;
                 startY = 223;
 
+                startX = 652;
+                startY = 275;
                 /**
                  * From Estacionamento to RU
                  * */
@@ -977,7 +979,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 if (myCurrentLocation != null && mapToPrintCompassCount < mapToPrint.size()) {
                     double delta = measure(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude(), mapToPrint.get(mapToPrintCompassCount).getLatitude(), mapToPrint.get(mapToPrintCompassCount).getLongitude());
                     if (delta <= 5) {
-                        mapToPrintCompassCount++;
+                        mapToPrintCompassCount+=5;
                         Log.d("DELTA","Delta: "+delta+"Count:" + mapToPrintCompassCount);
                     }
                     float azimuth = mOrientation[0];

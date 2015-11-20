@@ -2,12 +2,6 @@ package com.pucrs.andepucrs.heuristic;
 
 import android.graphics.Point;
 
-
-
-/**
- * A heuristic that uses the tile that is closest to the target
- * as the next best tile.
- */
 public class ClosestHeuristic implements AStarHeuristic {
 
 	public float getEstimatedDistanceToGoal(Point start, Point goal) {		

@@ -133,7 +133,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
                     }
                 }
                 Toast.makeText(ProfileSetupActivity.this, "Sucesso", Toast.LENGTH_SHORT).show();
-                if (selectCount == 0) {
+                if (selectCount < 0) {
                     Toast.makeText(ProfileSetupActivity.this, "Por favor, selecione ao menos uma obstáculo", Toast.LENGTH_SHORT).show();
                 } else {
                     /**
