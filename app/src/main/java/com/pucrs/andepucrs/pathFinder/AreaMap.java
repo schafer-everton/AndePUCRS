@@ -102,23 +102,12 @@ public class AreaMap {
 	public Point getGoalPoint() {
 		return new Point(goalLocationX, goalLocationY);
 	}
-	
-	/**
-	 * @return Node	The Goal Node
-	 * @see Node
-	 */
+
 	public Node getGoalNode() {
 		return map.get(goalLocationX).get(goalLocationY);
 	}
 	
-	/**
-	 * Determine the distance between two neighbor Nodes 
-	 * as used by the AStar algorithm.
-	 * 
-	 * @param node1 any Node
-	 * @param node2 any of Node1's neighbors
-	 * @return Float - the distance between the two neighbors
-	 */
+
 	public float getDistanceBetween(Node node1, Node node2) {
 		//if the nodes are on top or next to each other, return 1
 		if (node1.getX() == node2.getX() || node1.getY() == node2.getY()){
@@ -134,11 +123,7 @@ public class AreaMap {
 	public int getMapHeight() {
 		return mapHeight;
 	}
-	
-	/**
-	 * Removes all the map information about start location, goal location and obstacles.
-	 * Then remakes the map with the original With and Height. 
-	 */
+
 	public void clear() {
 		startLocationX = 0;
 		startLocationY = 0;

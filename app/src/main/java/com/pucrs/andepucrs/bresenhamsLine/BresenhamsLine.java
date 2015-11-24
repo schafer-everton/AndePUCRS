@@ -58,29 +58,8 @@ public class BresenhamsLine {
 				error = error + deltaX;
 			}
 		}
-					
+
 		return pointsOnLine;
-		
-//		function line(x0, x1, y0, y1)
-//	     boolean steep := abs(y1 - y0) > abs(x1 - a.x)
-//	     if steep then
-//	         swap(a.x, y0)
-//	         swap(x1, y1)
-//	     if a.x > x1 then
-//	         swap(a.x, x1)
-//	         swap(y0, y1)
-//	     int deltax := x1 - a.x
-//	     int deltay := abs(y1 - y0)
-//	     int error := deltax / 2
-//	     int ystep
-//	     int y := y0
-//	     if y0 < y1 then ystep := 1 else ystep := -1
-//	     for x from a.x to b.x
-//	         if steep then plot(y,x) else plot(x,y)
-//	         error := error - deltay
-//	         if error < 0 then
-//	             y := y + ystep
-//	             error := error + deltax
 
 	}
 	

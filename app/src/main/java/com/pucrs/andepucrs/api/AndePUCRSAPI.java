@@ -19,35 +19,35 @@ import retrofit.http.Path;
 
 public interface AndePUCRSAPI {
 
-    @POST("/andePUCRS/webresources/com.andepuc.usuario")
+    @POST("/andePucrs/webresources/com.andepuc.usuario")
     void createUser(@Body Usuario usuario, Callback<Usuario> response);
 
-    @GET("/andePUCRS/webresources/com.andepuc.usuario")
+    @GET("/andePucrs/webresources/com.andepuc.usuario")
     void findAllUser(Callback<ArrayList<Usuario>> response);
 
-    @GET("/andePUCRS/webresources/com.andepuc.preferencias")
+    @GET("/andePucrs/webresources/com.andepuc.preferencias")
     void findAllPreferences(Callback<ArrayList<Preferencias>> response);
 
-    @POST("/andePUCRS/webresources/com.andepuc.ponto")
+    @POST("/andePucrs/webresources/com.andepuc.ponto")
     void createPoint(@Body Ponto ponto, Callback<Ponto> response);
 
-    @GET("/andePUCRS/webresources/com.andepuc.ponto")
+    @GET("/andePucrs/webresources/com.andepuc.ponto")
     void findAllPoints(Callback<ArrayList<Ponto>> response);
 
-    @GET("/andePUCRS/webresources/com.andepuc.estabelecimentos")
+    @GET("/andePucrs/webresources/com.andepuc.estabelecimentos")
     void findAllLocations(Callback<ArrayList<Estabelecimentos>> response);
 
-    @POST("/andePUCRS/webresources/com.andepuc.pontousuario")
+    @POST("/andePucrs/webresources/com.andepuc.pontousuario")
     void createUserPoint(@Body PontoUsuario pontoUsuario, Callback<PontoUsuario> response);
 
     //@POST("/AndePUCRS-WebService-DBv4/webresources/com.andepucrs.ws.comentario")
-    @POST("/andePUCRS/webresources/com.andepuc.comentario")
+    @POST("/andePucrs/webresources/com.andepuc.comentario")
     void sendComment(@Body Comentario comment, Callback<Comentario> response);
 
-    @GET("/andePUCRS/webresources/com.andepuc.map/{from}/{to}")
+    @GET("/andePucrs/webresources/com.andepuc.map/{from}/{to}")
     void getMapFromTo(@Path("from")Integer from, @Path("to")Integer to, Callback<ArrayList<Map>> callback);
 
-    @PUT("/andePUCRS/webresources/com.andepuc.usuario/{id}")
+    @PUT("/andePucrs/webresources/com.andepuc.usuario/{id}")
     void editUser(@Path("id")Integer id,@Body Usuario entity, Callback<ArrayList<Map>> callback);
 
 }

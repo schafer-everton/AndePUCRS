@@ -950,7 +950,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 mapToPrint.add(new Map(l.latitude, l.longitude));
             }
             traceDone = true;
-
         } else {
             gDirectionsPolylineOptions = polylineOptions;
             gRoute = route;
@@ -979,7 +978,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 if (myCurrentLocation != null && mapToPrintCompassCount < mapToPrint.size()) {
                     double delta = measure(myCurrentLocation.getLatitude(), myCurrentLocation.getLongitude(), mapToPrint.get(mapToPrintCompassCount).getLatitude(), mapToPrint.get(mapToPrintCompassCount).getLongitude());
                     if (delta <= 5) {
-                        mapToPrintCompassCount+=5;
+                        mapToPrintCompassCount +=5;
                         Log.d("DELTA","Delta: "+delta+"Count:" + mapToPrintCompassCount);
                     }
                     float azimuth = mOrientation[0];
@@ -1011,7 +1010,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     mCurrentDegree = -direction;
                 }
             }
-
         }
     }
 

@@ -62,7 +62,7 @@
             android:name=".controller.CriticalPointActivity"
             android:label="@string/title_activity_critical_point" />
         <activity
-            android:name=".controller.MapsActivityTESTE"
+            android:name=".controller.MapsActivityGoogleAPITest"
             android:label="@string/title_activity_maps_activity_teste" >
         </activity>
         <activity

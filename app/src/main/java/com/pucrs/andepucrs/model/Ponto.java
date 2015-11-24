@@ -24,6 +24,16 @@ public class Ponto implements Serializable {
     private Preferencias nroIntPref;
     @Expose
     private Collection<PontoUsuario> pontoUsuarioCollection;
+    @Expose
+    private Integer valor;
+
+    public Integer getValor() {
+        return valor;
+    }
+
+    public void setValor(Integer valor) {
+        this.valor = valor;
+    }
 
     public Ponto(String descricao, String status, Double latitude, Double longitude, Preferencias nroIntPref) {
         this.descricao = descricao;

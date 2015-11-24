@@ -159,8 +159,11 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                          * If Point is already on the server, send user point
                                          * */
                                         if (pontoCadastrado) {
+
                                             pontoUsuario.setPontoUsuarioPK(new PontoUsuarioPK(pReady.getNroIntPonto(), Integer.parseInt(String.valueOf(userID))));
                                             pontoUsuario.setUsuario(new Usuario(Integer.parseInt(String.valueOf(userID))));
+                                            Preferencias prefSelected = findPreference(selectedItem);
+                                            pReady.setValor(prefSelected.getValor());
                                             pontoUsuario.setPonto(pReady);
                                             pontoUsuario.setComentario(commentEditText.getText().toString());
                                             webService.createUserPoint(pontoUsuario, new Callback<PontoUsuario>() {
@@ -189,6 +192,7 @@ public class CriticalPointActivity extends AppCompatActivity implements AdapterV
                                             Ponto p;
                                             Preferencias prefSelected = findPreference(selectedItem);
                                             p = new Ponto("Critico", "revisao", latLng.latitude, latLng.longitude, prefSelected);
+                                            p.setValor(prefSelected.getValor());
                                             webService.createPoint(p, new Callback<Ponto>() {
                                                 @Override
                                                 public void success(Ponto ponto, Response response) {

@@ -18,7 +18,7 @@ import com.pucrs.andepucrs.R;
 
 import java.util.List;
 
-public class MapsActivityTESTE extends FragmentActivity implements RoutingListener {
+public class MapsActivityGoogleAPITest extends FragmentActivity implements RoutingListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private static final LatLng LOWER_MANHATTAN = new LatLng(-30.059794,
