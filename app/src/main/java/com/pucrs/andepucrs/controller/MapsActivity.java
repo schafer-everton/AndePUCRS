@@ -643,7 +643,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                  * carrega todos os pontos criticos, baseado na pref;
                  */
                 for (Ponto p : allPoints) {
-                    if (p.getNroIntPref() != null && p.getNroIntPref().isSelected()) {
+                    //p.getStatus().equalsIgnoreCase("ok")
+                    if (p.getNroIntPref() != null && p.getNroIntPref().isSelected() ) {
                         Log.d(Constants.getAppName(), "Obstaculo " + p.getNroIntPref().getNome() + " - " + p.getLatitude() + ", " + p.getLongitude() + " - " + p.getNroIntPref().getValor());
                         lat = p.getLatitude();
                         lng = p.getLongitude();
