@@ -11,6 +11,11 @@
         "title": "teste",
         "thumbnail": "./public/content/images/thumbnail.jpg",
         "id": 0
+      },
+      {
+        "title": "tester",
+        "thumbnail": "./public/content/images/thumbnail.jpg",
+        "id": 1
       }
     ],
     "reviewer": "test"
